@@ -1,0 +1,137 @@
+/* frontend/src/Login.module.css */
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #efe8d1;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-form {
+  background: #fffaf0;
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #3a3320;
+  text-align: center;
+}
+
+/* Existing form-group */
+.form-group {
+  margin-bottom: 1.25rem; /* Ensure consistent spacing */
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #6d5e2c;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  /* Removed margin-bottom here as it's now handled by .form-group or .password-input-container */
+  border: 1px solid #d9caa3;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  border-color: #6b8e23;
+  outline: none;
+  box-shadow: 0 0 8px rgba(107, 142, 35, 0.3);
+}
+
+/* --- NEW STYLES FOR PASSWORD TOGGLE --- */
+.password-input-container {
+  position: relative; /* Allows absolute positioning of the icon */
+  display: flex; /* Helps align input and icon if needed */
+  align-items: center; /* Vertically align items */
+}
+
+/* Adjust the input to fit within the container */
+.password-input-container .form-input {
+  width: 100%; /* Make input take full width of container */
+  padding-right: 2.5rem; /* Make space for the icon */
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 0.75rem; /* Position from the right edge of the container */
+  cursor: pointer;
+  color: #6d5e2c; /* Icon color */
+  font-size: 1.2rem; /* Size of the emoji/icon */
+  user-select: none; /* Prevent text selection */
+  padding: 0.25rem; /* Add some padding for easier clicking */
+}
+
+.password-toggle-icon:hover {
+  opacity: 0.8;
+}
+/* --- END NEW STYLES --- */
+
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.login-btn,
+.signup-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #ab941f 0%, #c6ae2b 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(171, 148, 31, 0.3);
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, #c6ae2b 0%, #ab941f 100%);
+}
+
+.signup-btn {
+  background: linear-gradient(135deg, #6b8e23 0%, #98cb4f 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+
+.signup-btn:hover {
+  background: linear-gradient(135deg, #98cb4f 0%, #6b8e23 100%);
+}
+
+.error-message {
+  background-color: #ffe0e0;
+  border: 1px solid #ff9999;
+  color: #cc0000;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.error-message small {
+  font-size: 0.8rem;
+  color: #a00000;
+}

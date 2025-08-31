@@ -1,0 +1,51 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// Pages
+import AdminPage from "./Page/AdminPage/Admin";
+import LandingPage from "./Page/LandingPage/LandingPage";
+import Login from "./Page/Login/Login";
+import SignupPage from "./Page/SignUp/SignUp";
+import HomePage from "./Page/HomePage/HomePage";
+import ItemsPage from "./Page/HomePage/ItemsPage/ItemsPage";
+import ItemDetailPage from "./Page/HomePage/ItemDetailPage/ItemDetailPage";
+import ProcessCheckoutItem from "./Page/HomePage/ProcessItemPage/ProcessItemPage";
+import Profile from "./Page/HomePage/ProfilePage/ProfilePage";
+import ProfileEditPage from "./Page/HomePage/ProfilePage/ProfileEditPage";
+import Store from "./Page/HomePage/StorePage/StorePage";
+import SellerPage from "./Page/SellerPage/SellerPage";
+import SPAddItem from "./Page/SellerPage/AddItem/SellerPageAddItem";
+import SPViewItems from "./Page/SellerPage/ViewItems/SellerPageViewItems";
+import SPEditItem from "./Page/SellerPage/EditItem/SellerPageEditItem";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/home/:id" element={<HomePage />} />
+        <Route path="/items/:id" element={<ItemsPage />} />
+        <Route path="/item-detail/:id" element={<ItemDetailPage />} />
+        <Route path="/checkout/:id" element={<ProcessCheckoutItem />} />
+        <Route path="/store/:id" element={<Store />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/profile-edit/:id" element={<ProfileEditPage />} />
+
+        {/* Seller Routes */}
+        <Route path="/seller/home/:id" element={<SellerPage />} />
+        <Route path="/seller/add-item/:id" element={<SPAddItem />} />
+        <Route path="/seller/view-items/:id" element={<SPViewItems />} />
+        <Route path="/seller/edit-item/:id" element={<SPEditItem />} />
+        
+        {/* Admin Route */}
+        <Route path="/A_home/:id" element={<AdminPage />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

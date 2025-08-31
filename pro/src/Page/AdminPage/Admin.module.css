@@ -1,0 +1,137 @@
+:root {
+  --theme-light: #f4eee1;
+  --theme-dark: #6a4c2b;
+  --text-dark: #2d2d2d;
+  --border-color: #ddd;
+  --card-radius: 14px;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --hover-bg: #f7f3eb;
+  --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.adminContainer {
+  display: flex;
+  background-color: var(--theme-light);
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Inter', sans-serif;
+  color: var(--text-dark);
+}
+
+.content {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: var(--theme-light);
+}
+
+.section {
+  background-color: #fff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.sectionTitle {
+  color: var(--theme-dark);
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid var(--theme-dark);
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableHeader {
+  background-color: var(--theme-dark);
+  color: white;
+  font-weight: 600;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  box-shadow: var(--header-shadow);
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.scrollableTable {
+  max-height: 250px; /* Show only ~5 rows, then scroll */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-dark) #ddd;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.scrollableTable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollableTable::-webkit-scrollbar-thumb {
+  background-color: var(--theme-dark);
+  border-radius: 10px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: var(--hover-bg);
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+}
+
+.searchBar input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+  padding: 0.4rem 0;
+}
+
+.searchBar i {
+  color: var(--theme-dark);
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr 1fr;
+    font-size: 0.9rem;
+    gap: 0.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+  }
+}

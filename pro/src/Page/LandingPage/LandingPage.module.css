@@ -1,0 +1,161 @@
+:root {
+  --primary-color: #7a5e3b; /* Dark accent color */
+  --accent-color: #efe8d1; /* Light background color */
+  --text-light: #fffdf7; /* Slightly off-white for light text if needed */
+  --text-dark: #7a5e3b; /* Dark accent for general text */
+  --hover-shadow: rgba(122, 94, 59, 0.3); /* Shadow based on primary color */
+  --fade-bg: #efe8d1; /* Light background color */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+html,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--fade-bg); /* Use the requested background color */
+  color: var(--text-dark);
+}
+
+.landingPage {
+  position: relative;
+  min-height: 100vh;
+  z-index: 2;
+  padding-top: 100px;
+  overflow-x: hidden;
+}
+
+/* Background gradient */
+.backgroundGradient {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-color), #f9f4e9); /* Soft gradient using accent color */
+  z-index: 0;
+}
+
+/* Overlay content */
+.overlay {
+  position: relative;
+  z-index: 3;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.overlay img {
+  width: 120px;
+  margin-bottom: 1.5rem;
+}
+
+.landingTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--primary-color); /* Matches the dark accent color */
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.04em;
+  /* background-color is transparent by default if not set */
+}
+
+.landingSubtitle {
+  font-size: 1.25rem;
+  color: var(--text-dark); /* Using the dark accent color for subtitle */
+  margin-bottom: 2rem;
+}
+
+.loginBtn {
+  background-color: var(--primary-color); /* Dark accent color */
+  border: none;
+  border-radius: 50px;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent-color); /* Light background color for text */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 16px var(--hover-shadow);
+  letter-spacing: 0.05em;
+}
+
+.loginBtn:hover {
+  background-color: #6a4f32; /* Slightly darker shade for hover effect */
+  transform: translateY(-2px);
+}
+
+/* Cards grid */
+.cardSection {
+  margin: 4rem auto 6rem;
+  max-width: 1200px;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2rem;
+  z-index: 3;
+  position: relative;
+}
+
+.cardItem {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease; /* Added box-shadow to transition */
+  cursor: pointer;
+  background-color: var(--accent-color); /* Cards can have the light background */
+  border-radius: 12px; /* Slightly rounded corners for cards */
+  overflow: hidden; /* Ensures content stays within rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
+}
+
+.showCard {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cardItem:hover {
+  transform: translateY(-5px) scale(1.02); /* Lift and slightly scale on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* More prominent shadow on hover */
+}
+
+/* Fade animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* Loading text */
+.loadingText {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--primary-color); /* Consistent text color for loading */
+  padding: 2rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .landingTitle {
+    font-size: 2.2rem;
+  }
+  .loginBtn {
+    padding: 0.7rem 2rem;
+    font-size: 1rem;
+  }
+  .cardSection {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.2rem;
+  }
+}

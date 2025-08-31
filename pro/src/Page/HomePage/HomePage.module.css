@@ -1,0 +1,131 @@
+.HomePage {
+  background-color: #efe8d1;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  /* Added for simulating 480px screen and responsiveness */
+  width: 100%; /* Take full width on smaller screens */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Ensure Header, Carousel, and Category fit on 480px screen */
+/* These are general styles. You might need to adjust the internal CSS of Header, Carousel, and Category components for optimal fitting. */
+/* Example for Header - you'd likely adjust its internal CSS for search bar, logo etc. */
+/* If Header is a direct child of HomePage, you might add specific styles here. */
+.HomePage > :global(.Header) { /* Assuming Header component might apply a class like 'Header' */
+    width: 100%;
+    padding: 0 10px; /* Adjust padding if needed */
+    box-sizing: border-box;
+}
+
+/* Example for Carousel */
+.HomePage > :global(.Carousel) { /* Assuming Carousel component might apply a class like 'Carousel' */
+    width: 100%;
+    /* Add specific styles for image scaling within the carousel if needed */
+}
+
+/* Example for Category Navigation Wrapper */
+.CategoryNavWrapper {
+    width: 100%;
+    padding: 0 10px; /* Adjust padding if needed for the category buttons */
+    box-sizing: border-box;
+}
+
+.Cat {
+  font-size: 2rem;
+  margin: 1rem 0;
+  margin-left: 3rem; /* move slightly to the right */
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  /* Responsive adjustments for Category text */
+  padding-left: 1rem; /* Adjust for smaller screens */
+  box-sizing: border-box;
+  color: #555; /* Changed text color to be visible on light background */
+}
+
+.cardContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cards per row by default */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+@media (max-width: 1024px) {
+  .cardContainer {
+    grid-template-columns: repeat(3, 1fr); /* 3 cards on tablets */
+    gap: 1rem; /* Slightly smaller gap */
+  }
+}
+
+@media (max-width: 768px) {
+    /* Adjustments for medium screens */
+    .Cat {
+        font-size: 1.8rem;
+        margin-left: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+  .cardContainer {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row on phones */
+    gap: 0.8rem; /* Smaller gap for better fit */
+    padding: 0 0.5rem; /* Reduce padding on very small screens */
+  }
+  .Cat {
+      font-size: 1.5rem;
+      margin-left: 1rem;
+  }
+}
+
+/* Specific adjustments for 480px screen and below */
+@media (max-width: 480px) {
+    .HomePage {
+        /* On a 480px screen, the width should still be 100% of the viewport width,
+           but you might want to adjust padding or margins for inner elements. */
+        max-width: 100%; /* Ensure it doesn't get a fixed max-width beyond 100% of the small screen */
+    }
+
+    .Cat {
+        font-size: 1.2rem; /* Make category text smaller */
+        margin-left: 0.5rem; /* Less margin */
+        padding-left: 0.5rem;
+    }
+
+    .cardContainer {
+        grid-template-columns: repeat(2, 1fr); /* Explicitly 2 cards per row for 480px */
+        gap: 0.5rem; /* Even smaller gap */
+        padding: 0 0.2rem; /* Minimal padding */
+    }
+
+    /* Additional adjustments for Header, Carousel, Category components if they need more specific tweaks for 480px */
+    .HomePage > :global(.Header),
+    .HomePage > :global(.Carousel),
+    .CategoryNavWrapper {
+        padding: 0 5px; /* Reduce overall padding for these main sections */
+    }
+}
+
+h1 {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 2rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  color: #555; /* Changed text color to be visible on light background */
+}
+
+/* Appear / disappear base animation */
+.appearItem {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: opacity, transform;
+}
+
+.showItem {
+  opacity: 1;
+  transform: translateY(0);
+}

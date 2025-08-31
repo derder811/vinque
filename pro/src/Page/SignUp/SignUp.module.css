@@ -1,0 +1,191 @@
+/* Signup.module.css */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.signup-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #d9caa3 0%, #f5f0e4 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.signup-form {
+  background: #fffaf0;
+  padding: 1.5rem 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 12px 30px rgba(107, 142, 35, 0.15);
+  width: 100%;
+  max-width: 800px;
+  text-align: left;
+}
+
+.signup-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ab941f;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  letter-spacing: 1px;
+  text-align: center;
+  background-color: transparent;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.radio-group {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #6d5e2c;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-input {
+  appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid #ab941f;
+  border-radius: 50%;
+  position: relative;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+  accent-color: #6b8e23;
+}
+
+.radio-input:checked {
+  border-color: #6b8e23;
+  background-color: #6b8e23;
+}
+
+.radio-input:checked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.1rem;
+  color: #6d5e2c;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.1rem;
+  border: 1px solid #d9caa3;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  border-color: #6b8e23;
+  outline: none;
+  box-shadow: 0 0 8px rgba(107, 142, 35, 0.3);
+}
+
+fieldset.form-group {
+  border: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+legend.form-label {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #6d5e2c;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #6b8e23 0%, #98cb4f 100%);
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(107, 142, 35, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #98cb4f 0%, #6b8e23 100%);
+  box-shadow: 0 14px 30px rgba(107, 142, 35, 0.5);
+  transform: translateY(-3px) scale(1.05);
+}
+
+.password-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-group .form-input {
+  padding-right: 3rem;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6d5e2c;
+  font-size: 1.2rem;
+}
+
+.toggle-password-btn:focus {
+  outline: none;
+}

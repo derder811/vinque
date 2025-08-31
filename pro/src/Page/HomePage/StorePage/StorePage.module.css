@@ -1,0 +1,197 @@
+:root {
+  --theme-dark: #7a5e3b;
+  --theme-light: #efe8d1;
+}
+
+.storePage {
+  background-color: var(--theme-light);
+  padding: 2rem;
+  min-height: 100vh;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.storeHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.profileWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.profileContainer {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--theme-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ✅ Verified Badge - Twitter-style check inside dark circle */
+.verifiedBadge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  background-color: var(--theme-dark);
+  color: white;
+  border-radius: 50%;
+  border: 2px solid var(--theme-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.verifiedBadge svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--theme-light);
+}
+
+.storeInfo h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: var(--theme-dark);
+  font-weight: 600;
+}
+
+.tagline {
+  color: #7f8c8d;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.metaInfo {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.location,
+.productsCount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--theme-dark);
+  font-size: 0.95rem;
+}
+
+.categoryContainer {
+  background-color: var(--theme-light);
+  padding: 1rem 1.5rem;
+  margin: 2rem auto;
+  max-width: 1000px;
+}
+
+.categoryButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.categoryBtn {
+  background-color: transparent;
+  color: var(--theme-dark);
+  border: 2px solid var(--theme-dark);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryBtn:hover {
+  background-color: var(--theme-dark);
+  color: white;
+}
+
+.categoryBtn.active {
+  background-color: var(--theme-dark);
+  color: white;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: var(--theme-dark);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .storePage {
+    padding: 1rem;
+  }
+
+  .storeHeader {
+    padding: 1.5rem;
+  }
+
+  .metaInfo {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .categoryButtons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .storePage {
+    padding: 0.75rem;
+  }
+
+  .profileContainer {
+    width: 100px;
+    height: 100px;
+  }
+
+  .storeInfo h2 {
+    font-size: 1.5rem;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

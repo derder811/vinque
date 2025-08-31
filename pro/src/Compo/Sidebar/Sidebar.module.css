@@ -1,0 +1,85 @@
+/* frontend/src/Compo/Sidebar/Sidebar.module.css */
+
+.sidebar {
+  width: 180px; /* Fixed width for the sidebar on larger screens */
+  background-color: #3a3320;
+  padding: 1.5rem 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow to the right of sidebar */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column; /* Stack links vertically on larger screens */
+  gap: 0.5rem; /* Standard gap between links */
+}
+
+.sidebarLink {
+  padding: 0.8rem 1.5rem;
+  color: #fffaf0;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: block; /* Ensure links take full width for easier clicking */
+}
+
+.sidebarLink:hover,
+.sidebarLink:focus {
+  background-color: #6d5e2c;
+  color: #ffffff;
+}
+
+.sidebarLink:active {
+  background-color: #ab941f;
+}
+
+/* --- Responsive Styles for Smaller Screens (Max width 767px) --- */
+@media (max-width: 767px) {
+  .sidebar {
+    width: 100%; /* Full width for mobile sidebar */
+    padding: 0.5rem 0; /* Smaller vertical padding */
+    position: fixed; /* Fix to the bottom of the viewport */
+    bottom: 0;
+    left: 0;
+    z-index: 1000; /* Ensure it's above other content */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Shadow above the sidebar */
+    background-color: #3a3320; /* Keep background consistent */
+    height: var(--mobile-sidebar-height, 60px); /* Explicit height for fixed bar */
+    display: flex; /* Use flexbox for internal layout */
+    align-items: center; /* Vertically center links */
+    justify-content: center; /* Horizontally center content */
+  }
+
+  .sidebar nav {
+    flex-direction: row; /* Arrange links horizontally for bottom bar */
+    justify-content: space-around; /* Distribute links evenly */
+    align-items: center;
+    width: 100%; /* Ensure nav takes full sidebar width */
+    gap: 0; /* Remove gap if using space-around for even distribution */
+    overflow-x: auto; /* Allow horizontal scrolling if many links */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding: 0 0.5rem; /* Small horizontal padding for scrollable content */
+  }
+
+  .sidebarLink {
+    flex-shrink: 0; /* Prevent links from shrinking */
+    padding: 0.5rem 0.7rem; /* Adjusted padding for smaller buttons */
+    font-size: 0.85rem; /* Smaller font size for mobile */
+    text-align: center;
+    min-width: 70px; /* Ensure a minimum width for touch targets */
+    /* Remove display: block here as flex items don't need it */
+  }
+}
+
+/* --- Specific Adjustments for smaller phone screens (Max width 480px) --- */
+@media (max-width: 480px) {
+  .sidebar {
+    height: var(--mobile-sidebar-height, 55px); /* Slightly smaller height for very small screens */
+  }
+
+  .sidebarLink {
+    padding: 0.4rem 0.6rem; /* Further reduced padding */
+    font-size: 0.8rem; /* Slightly smaller font size */
+    min-width: 60px; /* Slightly smaller minimum width */
+  }
+}

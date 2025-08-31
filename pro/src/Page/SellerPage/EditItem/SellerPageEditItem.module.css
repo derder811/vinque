@@ -1,0 +1,514 @@
+/* SellerPageEditItem.module.css */
+
+/* Root variables for consistent theming (aligned with previous theme) */
+:root {
+  --header-height: 60px; /* Adjust this if your Header component has a different fixed height */
+  --sidebar-width: 220px; /* Consistent sidebar width */
+  --mobile-sidebar-height: 60px; /* Adjust for mobile sidebar */
+
+  /* Theme Colors - Earthy Tones */
+  --color-primary-light: #f8f5ed; /* Very light beige/off-white */
+  --color-primary-medium: #efe8d1; /* Main content background, slightly darker beige */
+  --color-primary-dark: #d9c7b6; /* Mid-tone beige for borders/accents */
+  --color-accent-gold: #ab941f; /* Golden accent */
+  --color-text-dark: #3a3320; /* Dark brown for main text/headings */
+  --color-text-medium: #6d5e2c; /* Medium brown for labels/descriptions */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Button Colors */
+  --button-primary-bg: #8d7a64; /* Muted brown for primary button */
+  --button-primary-hover: #746452; /* Slightly darker brown on hover */
+  --button-danger-bg: #a35a5a; /* Muted red for delete button */
+  --button-danger-hover: #8c4a4a; /* Darker red on hover */
+
+  /* Form Elements */
+  --input-border-color: var(--color-primary-dark);
+  --input-focus-border-color: var(--color-accent-gold);
+  --input-shadow-light: rgba(0, 0, 0, 0.06);
+  --input-shadow-focus: rgba(171, 148, 31, 0.3); /* Golden glow */
+
+  /* Specific Radio Colors */
+  --success-color: #6b8e23; /* Muted green for 'Yes' radio */
+  --danger-color: #ee1313; /* Muted red for 'No' radio */
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.2);
+
+  /* Animation */
+  --animation-duration: 0.7s;
+  --animation-delay-step: 0.08s; /* Staggered animation delay */
+}
+
+/* --- Overall Layout --- */
+.container {
+  display: flex;
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--color-primary-light); /* Overall background */
+}
+
+.content {
+  flex-grow: 1;
+  padding: 2.5rem; /* Generous padding for content area */
+  background-color: var(--color-primary-medium); /* Main content background */
+  overflow-y: auto; /* Enable scrolling for content if it overflows */
+  display: flex;
+  justify-content: center; /* Center form horizontally */
+  align-items: flex-start; /* Align form to the top */
+}
+
+/* --- Form Container (Card-like) --- */
+.editItemForm {
+  background-color: var(--color-white); /* White background for the form card */
+  padding: 2.5rem; /* Internal padding */
+  border-radius: 1rem; /* Rounded corners */
+  box-shadow: 0 10px 30px var(--shadow-md); /* Soft shadow */
+  width: 100%;
+  max-width: 900px; /* Increased max-width for better two-column layout */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Space between major sections */
+
+  /* Initial state for enter animation */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--animation-duration) ease-out,
+    transform var(--animation-duration) ease-out;
+}
+
+.editItemForm.animateEnter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mainHeading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-primary-dark); /* Subtle separator */
+}
+
+.sectionHeading {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text-medium);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--color-primary-dark), 0.5);
+}
+
+/* --- CSS Grid Layout for Main Form Content (Removed as per new horizontal image layout) --- */
+/* The .formGrid, .itemPhotoSection, .itemDescriptionSection, .verifiedSection grid-area properties are no longer used
+   since the layout is now a single column of sections, with image row within the form.
+   These styles remain in case you ever want to revert to a grid for other parts.
+*/
+.formGrid {
+  display: grid;
+  /* Define grid template areas for desktop */
+  /* These will be overridden by flex/block layout for the new structure */
+  grid-template-areas:
+    "photo description"
+    "verified description";
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+/* Removed specific grid-area for sections as they are now stacked */
+/* .itemPhotoSection { grid-area: photo; } */
+/* .itemDescriptionSection { grid-area: description; } */
+/* .verifiedSection { grid-area: verified; } */
+
+
+/* --- Image Preview Row --- */
+.imagePreviewRow {
+  display: flex;
+  gap: 1rem;
+  justify-content: center; /* Center the image containers */
+  margin-bottom: 1rem;
+  flex-wrap: wrap; /* Allow images to wrap to the next line on smaller screens */
+
+  /* Animation for this section */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out var(--animation-delay-step),
+    transform 0.5s ease-out var(--animation-delay-step);
+}
+
+.editItemForm.animateEnter .imagePreviewRow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Updated .imageContainer for individual image previews */
+.imageContainer {
+  position: relative;
+  width: 150px; /* Fixed size for preview thumbnails */
+  height: 150px;
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking when wrapped */
+  box-shadow: 0 4px 10px var(--shadow-sm); /* Soft shadow for each image container */
+  transition: transform 0.2s ease-out; /* Add transition for click/hover effect */
+}
+
+.imageContainer:hover {
+    transform: translateY(-3px); /* Subtle lift on hover */
+}
+
+
+.imageWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.itemPicture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.deleteIcon {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--color-white);
+  background: var(--button-danger-bg);
+  border-radius: 15%; /* Keep this for the specific 'x' shape */
+  padding: .01px 6px; /* Adjusted padding for a smaller 'x' */
+  font-size: 20px; /* Smaller font size for 'x' */
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10; /* Ensure it's above the image */
+  transition: background-color 0.2s ease; /* Smooth transition for hover */
+}
+
+.deleteIcon:hover {
+  background-color: var(--button-danger-hover);
+}
+
+.uploadSlot {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed var(--color-primary-dark);
+  border-radius: 0.75rem;
+  background-color: var(--color-primary-light);
+  color: var(--color-text-medium);
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform for consistency */
+}
+
+.uploadSlot:hover {
+  background-color: var(--color-primary-medium); /* Subtle background change on hover */
+  transform: translateY(-3px); /* Consistent lift on hover */
+}
+
+/* Removed .uploadButton as it's not present in the JSX anymore for image upload */
+
+
+/* Section animations for the rest of the form, now sequential */
+.itemDescriptionSection,
+.verifiedSection {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.editItemForm.animateEnter .itemDescriptionSection {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--animation-delay-step) * 2);
+}
+
+.editItemForm.animateEnter .verifiedSection {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(var(--animation-delay-step) * 3);
+}
+
+
+/* --- Form Groups (labels and inputs) --- */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Space between label and input */
+  position: relative;
+}
+
+.formLabel {
+  font-weight: 600;
+  color: var(--color-text-medium);
+  font-size: 0.95rem;
+}
+
+.formInput,
+.formTextarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--input-border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  background-color: var(--color-white);
+  box-shadow: inset 0 1px 3px var(--input-shadow-light);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #a0a0a0;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 3px var(--input-shadow-focus),
+    inset 0 1px 3px var(--input-shadow-light);
+}
+
+.formTextarea {
+  min-height: 120px; /* Slightly taller default */
+  resize: vertical;
+}
+
+/* --- Radio Group Styling --- */
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  gap: 1.5rem; /* Space between radio options */
+  margin-top: 0.5rem; /* Space from the label */
+}
+
+.radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+.radioInput {
+  appearance: none; /* Hide default radio button */
+  width: 1.25rem; /* Size */
+  height: 1.25rem; /* Size */
+  border-radius: 50%;
+  border: 2px solid var(--input-border-color);
+  position: relative;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevent shrinking on small screens */
+}
+
+.radioInput:checked {
+  border-color: var(--color-accent-gold); /* Border color when checked */
+  background-color: var(--color-accent-gold); /* Fill color when checked */
+}
+
+/* Specific colors for Yes/No radio buttons */
+.radioInput.radioYes:checked {
+  background-color: var(--success-color); /* Muted green for 'Yes' */
+  border-color: var(--success-color);
+}
+
+.radioInput.radioNo:checked {
+  background-color: var(--danger-color); /* Muted red for 'No' */
+  border-color: var(--danger-color);
+}
+
+.radioInput:checked::before {
+  content: "";
+  display: block;
+  width: 0.6rem; /* Inner dot size */
+  height: 0.6rem; /* Inner dot size */
+  background-color: var(--color-white); /* White dot */
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.radioLabelText {
+  line-height: 1; /* Align text vertically with radio button */
+}
+
+/* Historian Fields (Conditional Rendering & Animation) */
+.historianFields {
+  overflow: hidden;
+  max-height: 0; /* Hidden state */
+  opacity: 0;
+  transition: max-height 0.7s ease-out, opacity 0.7s ease-out; /* Smooth transition */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Space between historian fields */
+}
+
+.historianFields.show {
+  max-height: 200px; /* Sufficient height to show content */
+  opacity: 1;
+}
+
+/* --- Action Buttons --- */
+.buttonGroup {
+  /* No longer need grid-column, as it's not in a grid layout anymore */
+  display: flex;
+  gap: 1rem; /* Space between buttons */
+  justify-content: center; /* Center buttons horizontally */
+  margin-top: 1.5rem; /* Space above the buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+}
+
+.buttonGroup button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  box-shadow: 0 4px 10px var(--shadow-sm);
+  display: inline-flex; /* For icon alignment */
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.buttonGroup .editButton {
+  background-color: var(--button-primary-bg);
+  color: var(--color-white);
+}
+
+.buttonGroup .editButton:hover {
+  background-color: var(--button-primary-hover);
+  box-shadow: 0 6px 15px var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Fix for delete button styles */
+.buttonGroup .deleteItemButton { /* Corrected class name from .deleteButton to .deleteItemButton */
+  background-color: var(--button-danger-bg);
+  color: var(--color-white); /* Changed to white for consistency with theme variables */
+}
+
+.buttonGroup .deleteItemButton:hover {
+  background-color: var(--button-danger-hover); /* Use the hover variable */
+  box-shadow: 0 6px 15px var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  /* Adjust breakpoint for larger tablets */
+  /* No need for formGrid adjustments if it's already a single column */
+}
+
+@media (max-width: 768px) {
+  /* Mobile and small tablets */
+  .content {
+    padding: 1.5rem;
+    padding-top: 1rem; /* Less top padding on mobile */
+  }
+
+  .editItemForm {
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .mainHeading {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .sectionHeading {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .formGroup {
+    gap: 0.4rem;
+  }
+
+  .formLabel {
+    font-size: 0.9rem;
+  }
+
+  .formInput,
+  .formTextarea,
+  .buttonGroup button { /* Removed .uploadButton */
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .imageContainer {
+    width: 120px; /* Adjust size for smaller screens */
+    height: 120px;
+  }
+
+  .radioGroup {
+    gap: 1rem;
+  }
+
+  .radioInput {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .radioInput:checked::before {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .buttonGroup {
+    flex-direction: column; /* Stack buttons */
+    align-items: stretch; /* Make them full width */
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small devices */
+  .editItemForm {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .mainHeading {
+    font-size: 1.8rem;
+  }
+
+  .sectionHeading {
+    font-size: 1.1rem;
+  }
+
+  .buttonGroup button {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .imageContainer {
+    width: 100px; /* Further adjust size for extra small screens */
+    height: 100px;
+  }
+}

@@ -1,0 +1,101 @@
+.navbarWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.navbar {
+  position: relative;
+  padding: 10px 0;
+  font-family: Arial, sans-serif;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.scrollContainer {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 0 60px;
+  margin: 0 -20px;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  display: flex;
+  list-style: none;
+  padding: 0 20px;
+  margin: 0;
+  gap: 15px;
+  flex-wrap: nowrap;
+}
+
+.listItem {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  background-color: white;
+  color: #000;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border: 1px solid transparent;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.listItem:hover {
+  background-color: #7a5e3b;
+  color: white;
+  border-color: #7a5e3b;
+}
+
+.selected {
+  background-color: #7a5e3b;
+  color: white;
+  border-color: #7a5e3b;
+}
+
+.arrowButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 10;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7a5e3b;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.arrowButton:hover {
+  background-color: #7a5e3b;
+  color: white;
+}
+
+.navbar:hover .arrowButton {
+  opacity: 1;
+}
+
+.leftArrow {
+  left: 10px;
+}
+
+.rightArrow {
+  right: 10px;
+}

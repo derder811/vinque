@@ -1,0 +1,471 @@
+/* Root variables for consistent theming */
+:root {
+  --header-height: 60px; /* Adjust this if your Header component has a different fixed height */
+  --sidebar-width: 220px; /* Consistent sidebar width */
+  --mobile-sidebar-height: 60px; /* Adjust for mobile sidebar */
+
+  /* Theme Colors - Earthy Tones */
+  --color-primary-light: #f8f5ed; /* Very light beige/off-white */
+  --color-primary-medium: #efe8d1; /* Main content background, slightly darker beige */
+  --color-primary-dark: #d9c7b6; /* Mid-tone beige for borders/accents */
+  --color-accent-gold: #ab941f; /* Golden accent */
+  --color-text-dark: #3a3320; /* Dark brown for main text/headings */
+  --color-text-medium: #6d5e2c; /* Medium brown for labels/descriptions */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Button Colors */
+  --button-primary-bg: #8d7a64; /* Muted brown for primary button */
+  --button-primary-hover: #746452; /* Slightly darker brown on hover */
+  --button-danger-bg: #a35a5a; /* Muted red for delete button */
+  --button-danger-hover: #8c4a4a; /* Darker red on hover */
+
+  /* Form Elements */
+  --input-border-color: var(--color-primary-dark);
+  --input-focus-border-color: var(--color-accent-gold);
+  --input-shadow-light: rgba(0, 0, 0, 0.06);
+  --input-shadow-focus: rgba(171, 148, 31, 0.3); /* Golden glow */
+
+  /* Specific Radio Colors */
+  --success-color: #6b8e23; /* Muted green for 'Yes' radio */
+  --danger-color: #ee1313; /* Muted red for 'No' radio */
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.2);
+
+  /* Animation */
+  --animation-duration: 0.7s;
+  --animation-delay-step: 0.08s; /* Staggered animation delay */
+}
+
+/* --- Overall Layout --- */
+.container {
+  display: flex;
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--color-primary-light); /* Overall background */
+}
+
+.content {
+  flex-grow: 1;
+  padding: 2.5rem; /* Generous padding for content area */
+  background-color: var(--color-primary-medium); /* Main content background */
+  overflow-y: auto; /* Enable scrolling for content if it overflows */
+  display: flex;
+  justify-content: center; /* Center form horizontally */
+  align-items: flex-start; /* Align form to the top */
+}
+
+/* --- Form Container (Card-like) --- */
+.addItemForm {
+  background-color: var(--color-white); /* White background for the form card */
+  padding: 2.5rem; /* Internal padding */
+  border-radius: 1rem; /* Rounded corners */
+  box-shadow: 0 10px 30px var(--shadow-md); /* Soft shadow */
+  width: 100%;
+  max-width: 900px; /* Increased max-width for better two-column layout */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Space between major sections */
+
+  /* Initial state for enter animation */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--animation-duration) ease-out,
+    transform var(--animation-duration) ease-out;
+}
+
+.addItemForm.animateEnter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mainHeading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-primary-dark); /* Subtle separator */
+}
+
+.sectionHeading {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text-medium);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--color-primary-dark), 0.5);
+}
+
+/* --- CSS Grid Layout for Main Form Content --- */
+.formGrid {
+  display: grid;
+  /* Define grid template areas for desktop */
+  grid-template-areas:
+    "photo description"
+    "verified description"; /* Verified section below photo */
+  grid-template-columns: 1fr 2fr; /* Photo column (1 part), Description column (2 parts) */
+  gap: 2rem; /* Gap between grid items */
+}
+
+.itemPhotoSection {
+  grid-area: photo;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  /* Animation for this section */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out var(--animation-delay-step),
+    transform 0.5s ease-out var(--animation-delay-step);
+}
+
+.addItemForm.animateEnter .itemPhotoSection {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.imageContainer {
+  width: 100%; /* Take full width of its grid column */
+  max-width: 300px; /* Limit image container size */
+  text-align: center;
+}
+
+/* This applies to the currently selected image preview */
+.itemPicture { /* Renamed from .imagePreview for consistency with edit form's .itemPicture */
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  max-height: 100px; /* Max height to fit in column */
+  object-fit: cover;
+  border-radius: 0.75rem; /* Slightly rounded corners */
+  border: 4px solid var(--color-primary-dark);
+  box-shadow: 0 6px 15px var(--shadow-sm);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.uploadButton {
+  background-color: var(--button-primary-bg);
+  color: var(--color-white);
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem; /* More rounded */
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  box-shadow: 0 4px 10px var(--shadow-sm);
+  margin-top: 1rem; /* Space below image */
+  display: inline-flex; /* For icon alignment */
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uploadButton:hover {
+  background-color: var(--button-primary-hover);
+  box-shadow: 0 6px 15px var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.itemDescriptionSection {
+  grid-area: description;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Space between form groups within this section */
+  /* Animation for this section */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out calc(var(--animation-delay-step) * 2),
+    transform 0.5s ease-out calc(var(--animation-delay-step) * 2);
+}
+
+.addItemForm.animateEnter .itemDescriptionSection {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.verifiedSection {
+  grid-area: verified;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem; /* Space from photo section above */
+  /* Animation for this section */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease-out calc(var(--animation-delay-step) * 3),
+    transform 0.5s ease-out calc(var(--animation-delay-step) * 3);
+}
+
+.addItemForm.animateEnter .verifiedSection {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Form Groups (labels and inputs) --- */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Space between label and input */
+  position: relative; /* For potential animations */
+}
+
+.formLabel {
+  font-weight: 600;
+  color: var(--color-text-medium);
+  font-size: 0.95rem;
+}
+
+.formInput,
+.formTextarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--input-border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  background-color: var(--color-white);
+  box-shadow: inset 0 1px 3px var(--input-shadow-light);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #a0a0a0;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 3px var(--input-shadow-focus),
+    inset 0 1px 3px var(--input-shadow-light);
+}
+
+.formTextarea {
+  min-height: 120px; /* Slightly taller default */
+  resize: vertical;
+}
+
+/* --- Radio Group Styling --- */
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  gap: 1.5rem; /* Space between radio options */
+  margin-top: 0.5rem; /* Space from the label */
+}
+
+.radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+.radioInput {
+  appearance: none; /* Hide default radio button */
+  width: 1.25rem; /* Size */
+  height: 1.25rem; /* Size */
+  border-radius: 50%;
+  border: 2px solid var(--input-border-color);
+  position: relative;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevent shrinking on small screens */
+}
+
+.radioInput:checked {
+  border-color: var(--color-accent-gold); /* Border color when checked */
+  background-color: var(--color-accent-gold); /* Fill color when checked */
+}
+
+/* Specific colors for Yes/No radio buttons */
+.radioInput.radioYes:checked {
+  background-color: var(--success-color); /* Muted green for 'Yes' */
+  border-color: var(--success-color);
+}
+
+.radioInput.radioNo:checked {
+  background-color: var(--danger-color); /* Muted red for 'No' */
+  border-color: var(--danger-color);
+}
+
+.radioInput:checked::before {
+  content: "";
+  display: block;
+  width: 0.6rem; /* Inner dot size */
+  height: 0.6rem; /* Inner dot size */
+  background-color: var(--color-white); /* White dot */
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.radioLabelText {
+  line-height: 1; /* Align text vertically with radio button */
+}
+
+/* Historian Fields (Conditional Rendering & Animation) */
+.historianFields {
+  overflow: hidden;
+  max-height: 0; /* Hidden state */
+  opacity: 0;
+  transition: max-height 0.7s ease-out, opacity 0.7s ease-out; /* Smooth transition */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Space between historian fields */
+}
+
+.historianFields.show {
+  max-height: 200px; /* Sufficient height to show content */
+  opacity: 1;
+}
+
+/* --- Submit Button --- */
+/* Uses styles similar to the .editButton in the edit form */
+.submitButton {
+  background-color: var(--button-primary-bg);
+  color: var(--color-white);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  box-shadow: 0 4px 10px var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem; /* Space above the button */
+  width: 100%; /* Ensure it spans full width in its context */
+  max-width: 900px; /* Constrain max width for consistency */
+}
+
+.submitButton:hover {
+  background-color: var(--button-primary-hover);
+  box-shadow: 0 6px 15px var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  /* Adjust breakpoint for larger tablets */
+  .formGrid {
+    grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    grid-template-areas:
+      "photo"
+      "description"
+      "verified";
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile and small tablets */
+  .content {
+    padding: 1.5rem;
+    padding-top: 1rem; /* Less top padding on mobile */
+  }
+
+  .addItemForm {
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .mainHeading {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .sectionHeading {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .formGroup {
+    gap: 0.4rem;
+  }
+
+  .formLabel {
+    font-size: 0.9rem;
+  }
+
+  .formInput,
+  .formTextarea,
+  .uploadButton,
+  .submitButton {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .itemPicture {
+    max-height: 200px; /* Adjust max height for smaller screens */
+  }
+
+  .radioGroup {
+    gap: 1rem;
+  }
+
+  .radioInput {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .radioInput:checked::before {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .submitButton {
+    /* Stack buttons for consistency, even if only one */
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small devices */
+  .addItemForm {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .mainHeading {
+    font-size: 1.8rem;
+  }
+
+  .sectionHeading {
+    font-size: 1.1rem;
+  }
+
+  .submitButton {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+.previewWrapper {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.itemPicture {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 3px solid var(--color-primary-dark);
+}
