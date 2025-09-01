@@ -12,13 +12,13 @@ export default function ItemDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:4280/api/item-detail/${id}`);
+        const res = await fetch(`/api/item-detail/${id}`);
         const result = await res.json();
 
         if (result.status === "success") {
           const data = result.data;
           const formatImageUrl = (img) =>
-            img ? `http://localhost:4280${img}` : null;
+            img ? img : null;
 
           const images = [
             formatImageUrl(data.image1_path),
@@ -70,7 +70,7 @@ export default function ItemDetailPage() {
     }
 
     try {
-      const visitRes = await fetch("http://localhost:4280/api/visit-store", {
+      const visitRes = await fetch("/api/visit-store", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

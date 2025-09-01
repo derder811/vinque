@@ -245,7 +245,7 @@ export default function SellerOrderManagement() {
                                   <div className="d-flex align-items-center">
                                     {order.image_path && (
                                       <img
-                                        src={`http://localhost:4280${order.image_path}`}
+                                        src={order.image_path}
                                         alt={order.product_name}
                                         className="me-2"
                                         style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
@@ -315,7 +315,7 @@ export default function SellerOrderManagement() {
                     <div className="mb-3">
                       {selectedOrder.image_path && (
                         <img
-                          src={`http://localhost:4280${selectedOrder.image_path}`}
+                          src={selectedOrder.image_path}
                           alt={selectedOrder.product_name}
                           className="img-fluid mb-2"
                           style={{ maxHeight: '200px', objectFit: 'cover' }}

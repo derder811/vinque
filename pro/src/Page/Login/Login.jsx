@@ -25,7 +25,7 @@ export default function Login() {
 
     try {
       // Try to use environment variable, fallback to hardcoded URL
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4280";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       
       // Skip server check and proceed directly to login
       const response = await fetch(`${apiUrl}/api/login`, {

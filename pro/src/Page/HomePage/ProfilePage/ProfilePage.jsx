@@ -21,7 +21,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const response = await fetch(`http://localhost:4280/api/profile-info/${customerId}`);
+        const response = await fetch(`/api/profile-info/${customerId}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch profile");
@@ -76,7 +76,7 @@ export default function ProfilePage() {
   const displayPic = profile_pic
     ? (profile_pic.startsWith('http') 
         ? profile_pic 
-        : `http://localhost:4280/uploads/${profile_pic}`)
+        : (profile_pic.startsWith('/uploads/') ? profile_pic : `/uploads/${profile_pic}`))
     : "/profile_icon.png";
   const formattedAddress = Address ? Address.replace(/,\s*$/, "") : "";
   const displayBio = about_info || "No bio available.";

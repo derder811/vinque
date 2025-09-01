@@ -31,7 +31,7 @@ export default function ProfileEditPage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:4280/api/profile-info/${customerId}`);
+        const res = await fetch(`/api/profile-info/${customerId}`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.error || "Failed to fetch profile");
@@ -48,7 +48,7 @@ export default function ProfileEditPage() {
           // Handle both Google profile pictures (full URLs) and local uploads
           const profilePicUrl = data.profile_pic.startsWith('http') 
             ? data.profile_pic 
-            : `http://localhost:4280/uploads/${data.profile_pic}`;
+            : `/uploads/${data.profile_pic}`;
           setAvatarPreview(profilePicUrl);
         }
       } catch (error) {

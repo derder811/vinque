@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './Admin.module.css';
 import Header from '../../Compo/Header/Header';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4280";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');

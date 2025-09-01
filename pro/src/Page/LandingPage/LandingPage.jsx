@@ -13,7 +13,7 @@ export default function LandingPage() {
     const fetchItems = async () => {
       try {
         setLoading(true); // Set loading to true before fetching
-        const res = await fetch("http://localhost:4280/api/card-item-all");
+        const res = await fetch("/api/card-item-all");
         const result = await res.json();
         if (result.status === "success") {
           setItems(result.data);

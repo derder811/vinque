@@ -112,14 +112,14 @@
         
         async function testAPI() {
             try {
-                const response = await fetch('http://localhost:4280/api/header/search?customer_id=3');
+                const response = await fetch('/api/header/search?customer_id=3');
                 const data = await response.json();
                 
                 document.getElementById('apiResult').textContent = JSON.stringify(data, null, 2);
                 
                 if (data.profile_pic) {
                     const profileImg = document.getElementById('profileImg');
-                    profileImg.src = `http://localhost:4280/uploads/${data.profile_pic}`;
+                    profileImg.src = data.profile_pic.startsWith('/uploads/') ? data.profile_pic : `/uploads/${data.profile_pic}`;
                     profileImg.style.display = 'block';
                 }
             } catch (error) {

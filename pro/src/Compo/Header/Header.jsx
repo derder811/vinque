@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styles from "./Header.module.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4280";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Header({ showSearchBar = true, showItems = true, isSeller = false, onSearch }) {
   const navigate = useNavigate();

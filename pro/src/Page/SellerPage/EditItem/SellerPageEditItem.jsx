@@ -54,21 +54,21 @@ export default function SellerPageEditItem() {
 
           if (data.image1_path) {
             loadedImageSlots[0] = {
-              url: `http://localhost:4280${addPrefix(data.image1_path)}`,
+              url: addPrefix(data.image1_path),
               originalPath: removePrefix(data.image1_path),
               type: "keep"
             };
           }
           if (data.image2_path) {
             loadedImageSlots[1] = {
-              url: `http://localhost:4280${addPrefix(data.image2_path)}`,
+              url: addPrefix(data.image2_path),
               originalPath: removePrefix(data.image2_path),
               type: "keep"
             };
           }
           if (data.image3_path) {
             loadedImageSlots[2] = {
-              url: `http://localhost:4280${addPrefix(data.image3_path)}`,
+              url: addPrefix(data.image3_path),
               originalPath: removePrefix(data.image3_path),
               type: "keep"
             };

@@ -71,7 +71,7 @@ export default function SellerPage() {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:4280/api/seller-stats/${sellerId}`);
+        const res = await fetch(`/api/seller-stats/${sellerId}`);
         const json = await res.json();
 
         if (json.status === "success") {
@@ -178,7 +178,7 @@ export default function SellerPage() {
                     {stats.mostViewedItem ? (
                       <>
                         <img
-                          src={`http://localhost:4280/uploads/${stats.mostViewedItem.image1_path}`}
+                          src={stats.mostViewedItem.image1_path.startsWith('/uploads/') ? stats.mostViewedItem.image1_path : `/uploads/${stats.mostViewedItem.image1_path}`}
                           alt={stats.mostViewedItem.product_name}
                           className="img-fluid mb-3"
                           style={{ maxHeight: "300px" }}

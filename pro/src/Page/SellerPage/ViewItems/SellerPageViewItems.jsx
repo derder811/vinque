@@ -26,7 +26,7 @@ export default function SellerPageViewItems() {
 
       try {
         // Fetch active items
-        const response = await fetch(`http://localhost:4280/api/card-item/${sellerId}`);
+        const response = await fetch(`/api/card-item/${sellerId}`);
         const result = await response.json();
         if (result.status === "success") {
           setItems(result.data);
@@ -37,7 +37,7 @@ export default function SellerPageViewItems() {
         }
 
         // Fetch archived items
-        const archivedResponse = await fetch(`http://localhost:4280/api/seller/${sellerId}/archived-products`);
+        const archivedResponse = await fetch(`/api/seller/${sellerId}/archived-products`);
         const archivedResult = await archivedResponse.json();
         if (archivedResult.status === "success") {
           setArchivedItems(archivedResult.data);

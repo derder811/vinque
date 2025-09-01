@@ -20,7 +20,7 @@ export default function ProcessItemPage() {
 
                 if (result.status === "success") {
                     const data = result.data;
-                    const imageUrl = `http://localhost:4280/uploads/${data.image1_path}`;
+                    const imageUrl = data.image1_path.startsWith('/uploads/') ? data.image1_path : `/uploads/${data.image1_path}`;
                     setProduct({
                         name: data.product_name,
                         price: data.price,
@@ -118,7 +118,7 @@ export default function ProcessItemPage() {
                                     payer_name: details.payer.name.given_name + ' ' + (details.payer.name.surname || '')
                                 };
                                 
-                                const response = await fetch('http://localhost:4280/api/orders', {
+                                const response = await fetch('/api/orders', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',

@@ -18,7 +18,7 @@ export default function CardItem({
     const cleanedPath = data.image1_path.startsWith("/uploads/")
       ? data.image1_path
       : `/uploads/${data.image1_path.replace(/^\/+/, "")}`;
-    return `http://localhost:4280${cleanedPath}`;
+    return cleanedPath;
   })();
 
   const renderStars = (rating) => {

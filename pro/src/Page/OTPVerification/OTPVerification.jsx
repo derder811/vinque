@@ -71,7 +71,7 @@ export default function OTPVerification() {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4280";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       
       const response = await fetch(`${apiUrl}/api/verify-otp`, {
         method: 'POST',
@@ -118,7 +118,7 @@ export default function OTPVerification() {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4280";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       
       const response = await fetch(`${apiUrl}/api/send-otp`, {
         method: 'POST',

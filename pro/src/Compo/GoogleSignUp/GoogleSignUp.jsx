@@ -8,7 +8,7 @@ export default function GoogleSignUp() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4280";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       
       // Send the Google credential to our backend
       const response = await fetch(`${apiUrl}/api/google-signup`, {

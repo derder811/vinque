@@ -32,7 +32,7 @@ export default function ItemsPage() {
           userId = '1'; // fallback
         }
         
-        const response = await fetch(`http://localhost:4280/api/orders/${userId}`);
+        const response = await fetch(`/api/orders/${userId}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
@@ -126,7 +126,7 @@ export default function ItemsPage() {
               <div key={item.order_id} className={styles.itemCard}>
                 <div className={styles.cardImage}>
                   <img 
-                    src={item.image_path ? `http://localhost:4280${item.image_path}` : '/src/assets/default-product.jpg'} 
+                    src={item.image_path ? item.image_path : '/src/assets/default-product.jpg'} 
                     alt={item.product_name} 
                     onError={(e) => {
                       e.target.src = '/src/assets/default-product.jpg';
@@ -176,7 +176,7 @@ export default function ItemsPage() {
               <div className={styles.modalBody}>
                 <div className={styles.productInfo}>
                   <img 
-                    src={selectedOrder.image_path ? `http://localhost:4280${selectedOrder.image_path}` : '/src/assets/default-product.jpg'} 
+                    src={selectedOrder.image_path ? selectedOrder.image_path : '/src/assets/default-product.jpg'} 
                     alt={selectedOrder.product_name}
                     className={styles.modalImage}
                   />

@@ -49,8 +49,8 @@ export default function HomePage() {
         const searchTerm = queryParams.get("q");
 
         const url = searchTerm
-          ? `http://localhost:4280/api/header/search?q=${encodeURIComponent(searchTerm)}`
-          : "http://localhost:4280/api/home-products";
+          ? `/api/header/search?q=${encodeURIComponent(searchTerm)}`
+          : "/api/home-products";
 
         const res = await fetch(url);
         const json = await res.json();
@@ -94,7 +94,7 @@ export default function HomePage() {
 
   const handleCardClick = async (productId) => {
     try {
-      await fetch(`http://localhost:4280/api/visit/${productId}`, {
+      await fetch(`/api/visit/${productId}`, {
         method: "PUT",
       });
     } catch (err) {
