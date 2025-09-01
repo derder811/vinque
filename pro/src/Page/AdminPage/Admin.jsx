@@ -10,6 +10,7 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loginHistory, setLoginHistory] = useState([]);
   const [purchaseHistory, setPurchaseHistory] = useState([]);
+  const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     const fetchLoginHistory = async () => {
@@ -24,7 +25,20 @@ export default function AdminPage() {
       }
     };
 
+    const fetchPurchaseHistory = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/admin/purchases`);
+        const data = await res.json();
+        if (data.status === 'success') {
+          setPurchaseHistory(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch purchase history:", err);
+      }
+    };
+
     fetchLoginHistory();
+    fetchPurchaseHistory();
   }, []);
 
   const filteredLogin = loginHistory.filter(entry =>
@@ -39,76 +53,274 @@ export default function AdminPage() {
     )
   );
 
+  // Calculate statistics
+  const totalUsers = loginHistory.length;
+  const activeUsers = loginHistory.filter(user => user.logout === '0000-00-00 00:00:00').length;
+  const totalPurchases = purchaseHistory.length;
+  const customerCount = loginHistory.filter(user => user.role === 'Customer').length;
+  const sellerCount = loginHistory.filter(user => user.role === 'Seller').length;
+
   return (
     <>
       <Header isSeller={false} showSearchBar={false} />
       <div className={styles.adminContainer}>
-        <div className={styles.content}>
-          <div className={styles.searchBar}>
-            <i className="bi bi-search"></i>
-            <input
-              type="text"
-              placeholder="Search login or purchase history..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+        {/* Modern Sidebar */}
+        <div className={styles.sidebar}>
+          <div className={styles.sidebarHeader}>
+            <i className="bi bi-speedometer2"></i>
+            <h3>Admin Panel</h3>
           </div>
-<div className={styles.section}>
-  <h2 className={styles.sectionTitle}>
-    <i className="bi bi-person-lines-fill me-2"></i>Login/Logout History
-  </h2>
-  <div className={styles.table}>
-    <div className={styles.tableHeader}>
-      <div>User ID</div>
-      <div>First Name</div>
-      <div>Last Name</div>
-      <div>Role</div>
-      <div>Login</div>
-      <div>Logout</div>
-    </div>
-    <div className={styles.scrollableTable}>
-      {filteredLogin.map((user, index) => (
-        <div key={index} className={styles.tableRow}>
-          <div>{user.user_id}</div>
-          <div>{user.firstName}</div>
-          <div>{user.lastName}</div>
-          <div>{user.role}</div>
-          <div>{user.login}</div>
-          <div>{user.logout}</div>
+          <nav className={styles.sidebarNav}>
+            <button 
+              className={`${styles.navItem} ${activeSection === 'dashboard' ? styles.active : ''}`}
+              onClick={() => setActiveSection('dashboard')}
+            >
+              <i className="bi bi-house-door"></i>
+              <span>Dashboard</span>
+            </button>
+            <button 
+              className={`${styles.navItem} ${activeSection === 'users' ? styles.active : ''}`}
+              onClick={() => setActiveSection('users')}
+            >
+              <i className="bi bi-people"></i>
+              <span>User Management</span>
+            </button>
+            <button 
+              className={`${styles.navItem} ${activeSection === 'purchases' ? styles.active : ''}`}
+              onClick={() => setActiveSection('purchases')}
+            >
+              <i className="bi bi-cart-check"></i>
+              <span>Purchase History</span>
+            </button>
+            <button 
+              className={`${styles.navItem} ${activeSection === 'analytics' ? styles.active : ''}`}
+              onClick={() => setActiveSection('analytics')}
+            >
+              <i className="bi bi-graph-up"></i>
+              <span>Analytics</span>
+            </button>
+          </nav>
         </div>
-      ))}
-    </div>
-  </div>
-</div>
 
-<div className={styles.section}>
-  <h2 className={styles.sectionTitle}>
-    <i className="bi bi-cart-check me-2"></i>Purchase History
-  </h2>
-  <div className={styles.table}>
-    <div className={styles.tableHeader}>
-      <div>Product ID</div>
-      <div>Item Name</div>
-      <div>Buyer</div>
-      <div>Purchase Date</div>
-      <div>Business Name</div>
-      <div>Business Address</div>
-    </div>
-    <div className={styles.scrollableTable}>
-      {filteredPurchases.map((item, index) => (
-        <div key={index} className={styles.tableRow}>
-          <div>{item.productId}</div>
-          <div>{item.itemName}</div>
-          <div>{item.buyer}</div>
-          <div>{item.date}</div>
-          <div>{item.businessName}</div>
-          <div>{item.businessAddress}</div>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
+        {/* Main Content */}
+        <div className={styles.content}>
+          {/* Dashboard Section */}
+          {activeSection === 'dashboard' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1>Dashboard Overview</h1>
+                <p>Welcome to your admin dashboard</p>
+              </div>
+              
+              {/* Statistics Cards */}
+              <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>
+                    <i className="bi bi-people-fill"></i>
+                  </div>
+                  <div className={styles.statContent}>
+                    <h3>{totalUsers}</h3>
+                    <p>Total Users</p>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>
+                    <i className="bi bi-person-check-fill"></i>
+                  </div>
+                  <div className={styles.statContent}>
+                    <h3>{activeUsers}</h3>
+                    <p>Active Users</p>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>
+                    <i className="bi bi-cart-fill"></i>
+                  </div>
+                  <div className={styles.statContent}>
+                    <h3>{totalPurchases}</h3>
+                    <p>Total Purchases</p>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>
+                    <i className="bi bi-shop"></i>
+                  </div>
+                  <div className={styles.statContent}>
+                    <h3>{sellerCount}</h3>
+                    <p>Sellers</p>
+                  </div>
+                </div>
+              </div>
 
+              {/* Quick Actions */}
+              <div className={styles.quickActions}>
+                <h2>Quick Actions</h2>
+                <div className={styles.actionGrid}>
+                  <button className={styles.actionCard} onClick={() => setActiveSection('users')}>
+                    <i className="bi bi-person-lines-fill"></i>
+                    <span>Manage Users</span>
+                  </button>
+                  <button className={styles.actionCard} onClick={() => setActiveSection('purchases')}>
+                    <i className="bi bi-cart-check"></i>
+                    <span>View Purchases</span>
+                  </button>
+                  <button className={styles.actionCard} onClick={() => setActiveSection('analytics')}>
+                    <i className="bi bi-graph-up"></i>
+                    <span>View Analytics</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* User Management Section */}
+          {activeSection === 'users' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1>User Management</h1>
+                <p>Manage user accounts and login history</p>
+              </div>
+              
+              <div className={styles.searchBar}>
+                <i className="bi bi-search"></i>
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  <i className="bi bi-person-lines-fill"></i>
+                  Login/Logout History
+                </h2>
+                <div className={styles.tableContainer}>
+                  <div className={styles.table}>
+                    <div className={styles.tableHeader}>
+                      <div>User ID</div>
+                      <div>First Name</div>
+                      <div>Last Name</div>
+                      <div>Role</div>
+                      <div>Login</div>
+                      <div>Logout</div>
+                    </div>
+                    <div className={styles.scrollableTable}>
+                      {filteredLogin.map((user, index) => (
+                        <div key={index} className={styles.tableRow}>
+                          <div>{user.user_id}</div>
+                          <div>{user.firstName}</div>
+                          <div>{user.lastName}</div>
+                          <div>
+                            <span className={`${styles.roleBadge} ${styles[user.role?.toLowerCase()]}`}>
+                              {user.role}
+                            </span>
+                          </div>
+                          <div>{user.login}</div>
+                          <div>
+                            {user.logout === '0000-00-00 00:00:00' ? 
+                              <span className={styles.onlineBadge}>Online</span> : 
+                              user.logout
+                            }
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Purchase History Section */}
+          {activeSection === 'purchases' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1>Purchase History</h1>
+                <p>Track all purchase transactions</p>
+              </div>
+              
+              <div className={styles.searchBar}>
+                <i className="bi bi-search"></i>
+                <input
+                  type="text"
+                  placeholder="Search purchases..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  <i className="bi bi-cart-check"></i>
+                  Purchase Transactions
+                </h2>
+                <div className={styles.tableContainer}>
+                  <div className={styles.table}>
+                    <div className={styles.tableHeader}>
+                      <div>Product ID</div>
+                      <div>Item Name</div>
+                      <div>Buyer</div>
+                      <div>Purchase Date</div>
+                      <div>Business Name</div>
+                      <div>Business Address</div>
+                    </div>
+                    <div className={styles.scrollableTable}>
+                      {filteredPurchases.map((item, index) => (
+                        <div key={index} className={styles.tableRow}>
+                          <div>{item.productId}</div>
+                          <div>{item.itemName}</div>
+                          <div>{item.buyer}</div>
+                          <div>{item.date}</div>
+                          <div>{item.businessName}</div>
+                          <div>{item.businessAddress}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Analytics Section */}
+          {activeSection === 'analytics' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1>Analytics</h1>
+                <p>System performance and user insights</p>
+              </div>
+              
+              <div className={styles.analyticsGrid}>
+                <div className={styles.analyticsCard}>
+                  <h3>User Distribution</h3>
+                  <div className={styles.chartPlaceholder}>
+                    <div className={styles.userStats}>
+                      <div className={styles.userStat}>
+                        <span className={styles.statLabel}>Customers</span>
+                        <span className={styles.statValue}>{customerCount}</span>
+                      </div>
+                      <div className={styles.userStat}>
+                        <span className={styles.statLabel}>Sellers</span>
+                        <span className={styles.statValue}>{sellerCount}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.analyticsCard}>
+                  <h3>System Activity</h3>
+                  <div className={styles.chartPlaceholder}>
+                    <div className={styles.activityStats}>
+                      <p>Total Logins: {totalUsers}</p>
+                      <p>Active Sessions: {activeUsers}</p>
+                      <p>Purchase Activity: {totalPurchases}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

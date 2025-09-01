@@ -1,11 +1,12 @@
 .HomePage {
-  background-color: #efe8d1;
+  background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: Arial, sans-serif;
-  color: #fff;
-  /* Added for simulating 480px screen and responsiveness */
-  width: 100%; /* Take full width on smaller screens */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 /* Ensure Header, Carousel, and Category fit on 480px screen */
@@ -44,67 +45,219 @@
   color: #555; /* Changed text color to be visible on light background */
 }
 
-.cardContainer {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 cards per row by default */
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
+/* Navigation Tabs */
+.navTabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  gap: 2rem;
 }
 
+.navTab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.navTab:hover {
+  color: #333;
+}
+
+.navTab.active {
+  color: #333;
+  font-weight: 600;
+}
+
+.navTab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #8B7355;
+}
+
+/* Category Filter Tabs */
+.categoryTabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  gap: 1rem;
+  background: white;
+}
+
+.categoryTab {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  border-radius: 25px;
+  transition: all 0.2s ease;
+}
+
+.categoryTab:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.categoryTab.active {
+  background: #8B7355;
+  color: white;
+  font-weight: 600;
+}
+
+/* Product Sections */
+.section {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.noItems {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #6c757d;
+  font-size: 1.1rem;
+  padding: 2rem;
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .cardContainer {
-    grid-template-columns: repeat(3, 1fr); /* 3 cards on tablets */
-    gap: 1rem; /* Slightly smaller gap */
+  .productGrid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+  
+  .navTabs {
+    padding: 0.75rem 1rem;
+    gap: 1.5rem;
+  }
+  
+  .categoryTabs {
+    padding: 1rem;
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 768px) {
-    /* Adjustments for medium screens */
-    .Cat {
-        font-size: 1.8rem;
-        margin-left: 1.5rem;
-    }
+  .productGrid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  
+  .section {
+    padding: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+  
+  .navTabs {
+    padding: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .navTab {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .categoryTabs {
+    padding: 0.75rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .categoryTab {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.2rem;
+  }
 }
 
 @media (max-width: 600px) {
-  .cardContainer {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row on phones */
-    gap: 0.8rem; /* Smaller gap for better fit */
-    padding: 0 0.5rem; /* Reduce padding on very small screens */
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
-  .Cat {
-      font-size: 1.5rem;
-      margin-left: 1rem;
+  
+  .section {
+    padding: 0.75rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
   }
 }
 
-/* Specific adjustments for 480px screen and below */
 @media (max-width: 480px) {
-    .HomePage {
-        /* On a 480px screen, the width should still be 100% of the viewport width,
-           but you might want to adjust padding or margins for inner elements. */
-        max-width: 100%; /* Ensure it doesn't get a fixed max-width beyond 100% of the small screen */
-    }
-
-    .Cat {
-        font-size: 1.2rem; /* Make category text smaller */
-        margin-left: 0.5rem; /* Less margin */
-        padding-left: 0.5rem;
-    }
-
-    .cardContainer {
-        grid-template-columns: repeat(2, 1fr); /* Explicitly 2 cards per row for 480px */
-        gap: 0.5rem; /* Even smaller gap */
-        padding: 0 0.2rem; /* Minimal padding */
-    }
-
-    /* Additional adjustments for Header, Carousel, Category components if they need more specific tweaks for 480px */
-    .HomePage > :global(.Header),
-    .HomePage > :global(.Carousel),
-    .CategoryNavWrapper {
-        padding: 0 5px; /* Reduce overall padding for these main sections */
-    }
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .section {
+    padding: 0.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+  
+  .navTabs {
+    padding: 0.25rem;
+    gap: 0.5rem;
+  }
+  
+  .navTab {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .categoryTabs {
+    padding: 0.5rem;
+    gap: 0.25rem;
+  }
+  
+  .categoryTab {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
 }
 
 h1 {

@@ -109,34 +109,83 @@ export default function HomePage() {
     navigate(`/home/${customerId}?q=${encodeURIComponent(term)}`);
   };
 
+  // Split items into featured and best sellers
+  const featuredItems = filterItems.slice(0, 4);
+  const bestSellerItems = filterItems.slice(4, 8);
+
   return (
     <div className={styles.HomePage}>
       <Header isSeller={false} onSearch={handleSearch} showItems={true} />
-      <Carousel />
-
-      <nav ref={navRef} className={`${styles.Cat} ${styles.appearItem}`}>
-        Category
-      </nav>
-
-      <div ref={categoryRef} className={`${styles.CategoryNavWrapper} ${styles.appearItem}`}>
-        <Category onCategorySelect={setSelectedCategory} selectedCategory={selectedCategory} />
+      
+      {/* Navigation Tabs */}
+      <div className={styles.navTabs}>
+        <button className={`${styles.navTab} ${styles.active}`}>Home</button>
+        <button className={styles.navTab}>Shop</button>
+        <button className={styles.navTab}>Collections</button>
+        <button className={styles.navTab}>About</button>
       </div>
 
-      <div className={styles.cardContainer}>
-        {filterItems.length > 0 ? (
-          filterItems.map((item, index) => (
-            <div
-              key={item.product_id}
-              ref={(el) => (cardRefs.current[index] = el)}
-              className={styles.appearItem}
-            >
-              <Card data={item} onCardClick={() => handleCardClick(item.product_id)} />
-            </div>
-          ))
-        ) : (
-          <p>No items to display no item related to that.</p>
-        )}
+      {/* Category Filter Tabs */}
+      <div ref={categoryRef} className={`${styles.categoryTabs} ${styles.appearItem}`}>
+        <button 
+          className={`${styles.categoryTab} ${!selectedCategory ? styles.active : ''}`}
+          onClick={() => setSelectedCategory(null)}
+        >
+          All
+        </button>
+        <button 
+          className={`${styles.categoryTab} ${selectedCategory === 'new' ? styles.active : ''}`}
+          onClick={() => setSelectedCategory('new')}
+        >
+          New Arrivals
+        </button>
+        <button 
+          className={`${styles.categoryTab} ${selectedCategory === 'bestseller' ? styles.active : ''}`}
+          onClick={() => setSelectedCategory('bestseller')}
+        >
+          Best Sellers
+        </button>
       </div>
+
+      {/* Featured Products Section */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Featured Products</h2>
+        <div className={styles.productGrid}>
+          {featuredItems.length > 0 ? (
+            featuredItems.map((item, index) => (
+              <div
+                key={item.product_id}
+                ref={(el) => (cardRefs.current[index] = el)}
+                className={styles.appearItem}
+              >
+                <Card data={item} onCardClick={() => handleCardClick(item.product_id)} />
+              </div>
+            ))
+          ) : (
+            <p className={styles.noItems}>No featured items to display</p>
+          )}
+        </div>
+      </section>
+
+      {/* Best Sellers Section */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Best Sellers</h2>
+        <div className={styles.productGrid}>
+          {bestSellerItems.length > 0 ? (
+            bestSellerItems.map((item, index) => (
+              <div
+                key={item.product_id}
+                ref={(el) => (cardRefs.current[index + 4] = el)}
+                className={styles.appearItem}
+              >
+                <Card data={item} onCardClick={() => handleCardClick(item.product_id)} />
+              </div>
+            ))
+          ) : (
+            <p className={styles.noItems}>No best seller items to display</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
