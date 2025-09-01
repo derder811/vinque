@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug User Session</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .debug-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .debug-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .debug-content {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>User Session Debug Tool</h1>
+        
+        <div class="debug-section">
+            <div class="debug-title">Current URL Information</div>
+            <div class="debug-content" id="urlInfo"></div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">LocalStorage Data</div>
+            <div class="debug-content" id="localStorageInfo"></div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">User ID Detection Logic</div>
+            <div class="debug-content" id="userIdLogic"></div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">Test Orders API</div>
+            <button class="test-button" onclick="testOrdersAPI(2)">Test User ID 2</button>
+            <button class="test-button" onclick="testOrdersAPI(5)">Test User ID 5</button>
+            <button class="test-button" onclick="testOrdersAPI(getCurrentUserId())">Test Current User ID</button>
+            <div id="apiResults"></div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">Quick Actions</div>
+            <button class="test-button" onclick="setUserId(2)">Set User ID to 2</button>
+            <button class="test-button" onclick="setUserId(5)">Set User ID to 5</button>
+            <button class="test-button" onclick="clearUserData()">Clear All User Data</button>
+        </div>
+    </div>
+
+    <script>
+        function updateDebugInfo() {
+            // URL Information
+            const urlInfo = {
+                'Current URL': window.location.href,
+                'Pathname': window.location.pathname,
+                'Search': window.location.search,
+                'Hash': window.location.hash
+            };
+            document.getElementById('urlInfo').textContent = JSON.stringify(urlInfo, null, 2);
+            
+            // LocalStorage Information
+            const localStorageData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                try {
+                    const value = localStorage.getItem(key);
+                    localStorageData[key] = JSON.parse(value);
+                } catch (e) {
+                    localStorageData[key] = localStorage.getItem(key);
+                }
+            }
+            document.getElementById('localStorageInfo').textContent = JSON.stringify(localStorageData, null, 2);
+            
+            // User ID Logic (same as ItemsPage.jsx)
+            const currentUserId = getCurrentUserId();
+            const userIdLogic = {
+                'URL Param ID': getUrlParamId(),
+                'localStorage customer_id': localStorage.getItem('customer_id'),
+                'localStorage user object': JSON.parse(localStorage.getItem('user') || '{}'),
+                'Final User ID': currentUserId
+            };
+            document.getElementById('userIdLogic').textContent = JSON.stringify(userIdLogic, null, 2);
+        }
+        
+        function getUrlParamId() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1] || null;
+        }
+        
+        function getCurrentUserId() {
+            // Same logic as ItemsPage.jsx
+            let userId = getUrlParamId();
+            if (!userId) {
+                userId = localStorage.getItem('customer_id');
+            }
+            if (!userId) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                userId = user.customer_id;
+            }
+            if (!userId) {
+                userId = '1'; // fallback
+            }
+            return userId;
+        }
+        
+        async function testOrdersAPI(userId) {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = `<div>Testing User ID: ${userId}...</div>`;
+            
+            try {
+                const response = await fetch(`http://localhost:4280/api/orders/${userId}`);
+                const data = await response.json();
+                
+                let resultClass = 'success';
+                let resultText = `User ID ${userId}: ${data.status}`;
+                
+                if (data.status === 'success') {
+                    resultText += ` - Found ${data.orders ? data.orders.length : 0} orders`;
+                    if (data.orders && data.orders.length > 0) {
+                        resultText += '\n' + data.orders.map(order => 
+                            `  - Order ${order.order_id}: ${order.product_name} (${order.status})`
+                        ).join('\n');
+                    }
+                } else {
+                    resultClass = 'error';
+                    resultText += ` - Error: ${data.message}`;
+                }
+                
+                resultsDiv.innerHTML = `<div class="result ${resultClass}">${resultText}</div>`;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function setUserId(userId) {
+            localStorage.setItem('customer_id', userId.toString());
+            updateDebugInfo();
+            alert(`Set customer_id to ${userId}. Refresh the orders page to see changes.`);
+        }
+        
+        function clearUserData() {
+            localStorage.removeItem('customer_id');
+            localStorage.removeItem('user');
+            updateDebugInfo();
+            alert('Cleared all user data from localStorage.');
+        }
+        
+        // Initialize
+        updateDebugInfo();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(updateDebugInfo, 5000);
+    </script>
+</body>
+</html>
