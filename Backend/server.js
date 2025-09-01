@@ -12,7 +12,7 @@ import nodemailer from 'nodemailer'; // Import nodemailer for OTP emails
 
 // CONFIG
 // For production, these should be environment variables.
-const PORT = process.env.PORT || 4280;
+const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5176';
 
 // Email configuration for OTP
