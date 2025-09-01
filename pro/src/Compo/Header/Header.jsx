@@ -93,8 +93,14 @@ export default function Header({ showSearchBar = true, showItems = true, isSelle
     else navigate(`/`);
   };
 
+  const isExternalUrl = (url) => {
+    return url && (url.startsWith('http://') || url.startsWith('https://'));
+  };
+
   const profileSrc = user?.profile_pic
-    ? `${API_URL}/uploads/${user.profile_pic.replace(/^\/?uploads\/?/, "")}`
+    ? isExternalUrl(user.profile_pic)
+      ? user.profile_pic
+      : `${API_URL}/uploads/${user.profile_pic.replace(/^\/?uploads\/?/, "")}`
     : "/profile_icon.png";
 
   return (
