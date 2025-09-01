@@ -13,7 +13,7 @@ import nodemailer from 'nodemailer'; // Import nodemailer for OTP emails
 // CONFIG
 // For production, these should be environment variables.
 const PORT = process.env.PORT || 4280;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5176';
 
 // Email configuration for OTP
 const transporter = nodemailer.createTransport({
@@ -379,9 +379,9 @@ app.post("/api/google-signup", async (req, res) => {
     
     const base64Url = jwtParts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    // Add padding if needed
+    const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const jsonPayload = atob(paddedBase64);
     
     const googleUser = JSON.parse(jsonPayload);
     const { sub: googleId, email, name, picture } = googleUser;
@@ -1945,6 +1945,60 @@ app.get("/api/A_History", async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching login history:', err);
+    res.status(500).json({ status: "error", message: "Internal Server Error" });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Get all purchase transactions for admin
+app.get("/api/admin/purchases", async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.query(`
+      SELECT 
+        o.order_id,
+        o.product_id,
+        o.product_name,
+        o.price,
+        o.down_payment,
+        o.remaining_payment,
+        o.status,
+        DATE_FORMAT(o.order_date, '%Y-%m-%d %H:%i:%s') AS order_date,
+        o.payer_name,
+        o.paypal_transaction_id,
+        c.First_name AS buyer_first_name,
+        c.Last_name AS buyer_last_name,
+        c.email AS buyer_email,
+        s.business_name,
+        s.business_address,
+        p.seller_id
+      FROM orders_tb o
+      LEFT JOIN customer_tb c ON o.user_id = c.customer_id
+      LEFT JOIN product_tb p ON o.product_id = p.product_id
+      LEFT JOIN seller_tb s ON p.seller_id = s.seller_id
+      ORDER BY o.order_date DESC
+    `);
+
+    // Format the data for admin interface
+    const formattedTransactions = rows.map(row => ({
+      productId: row.product_id,
+      itemName: row.product_name,
+      buyer: `${row.buyer_first_name || ''} ${row.buyer_last_name || ''}`.trim() || row.payer_name || 'Unknown',
+      date: row.order_date,
+      businessName: row.business_name || 'Unknown Business',
+      businessAddress: row.business_address || 'Unknown Address',
+      price: row.price,
+      status: row.status,
+      transactionId: row.paypal_transaction_id
+    }));
+
+    res.json({ status: "success", data: formattedTransactions });
+
+  } catch (err) {
+    console.error('Error fetching purchase transactions:', err);
     res.status(500).json({ status: "error", message: "Internal Server Error" });
   } finally {
     if (connection) connection.release();
