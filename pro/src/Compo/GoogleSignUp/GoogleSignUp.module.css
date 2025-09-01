@@ -1,0 +1,52 @@
+.googleSignUpContainer {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider span {
+  padding: 0 1rem;
+  background: white;
+  color: #888;
+  font-weight: 500;
+}
+
+/* Override Google button styles to match the design */
+.googleSignUpContainer :global(.google-login-button) {
+  width: 100% !important;
+  border-radius: 8px !important;
+  border: 2px solid #e0e0e0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.googleSignUpContainer :global(.google-login-button:hover) {
+  border-color: #a68b5b !important;
+  box-shadow: 0 2px 8px rgba(166, 139, 91, 0.2) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .divider {
+    margin: 1rem 0;
+  }
+  
+  .divider span {
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+  }
+}

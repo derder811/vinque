@@ -10,8 +10,10 @@ export default function SellerPageViewItems() {
   const navigate = useNavigate();
   const location = useLocation();
   const [items, setItems] = useState([]);
+  const [archivedItems, setArchivedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showArchived, setShowArchived] = useState(false);
 
   // Fetch items from backend
   useEffect(() => {
@@ -23,6 +25,7 @@ export default function SellerPageViewItems() {
       }
 
       try {
+        // Fetch active items
         const response = await fetch(`http://localhost:4280/api/card-item/${sellerId}`);
         const result = await response.json();
         if (result.status === "success") {
@@ -32,9 +35,21 @@ export default function SellerPageViewItems() {
           console.error("Failed to fetch items:", result.message);
           setItems([]);
         }
+
+        // Fetch archived items
+        const archivedResponse = await fetch(`http://localhost:4280/api/seller/${sellerId}/archived-products`);
+        const archivedResult = await archivedResponse.json();
+        if (archivedResult.status === "success") {
+          setArchivedItems(archivedResult.data);
+          console.log("Archived items fetched successfully:", archivedResult.data);
+        } else {
+          console.error("Failed to fetch archived items:", archivedResult.message);
+          setArchivedItems([]);
+        }
       } catch (err) {
         console.error("Fetch error:", err);
         setItems([]);
+        setArchivedItems([]);
       }
     };
 
@@ -57,7 +72,52 @@ export default function SellerPageViewItems() {
     navigate(`/seller/edit-item/${productId}`);
   };
 
-  const filteredItems = items.filter((item) =>
+  // Archive product function
+  const handleArchiveProduct = async (productId) => {
+    try {
+      const response = await fetch(`http://localhost:4280/api/products/${productId}/archive`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sellerId: sellerId })
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        setRefreshTrigger(prev => prev + 1);
+        console.log('Product archived successfully');
+      } else {
+        console.error('Failed to archive product:', result.message);
+      }
+    } catch (err) {
+      console.error('Archive error:', err);
+    }
+  };
+
+  // Restore product function
+  const handleRestoreProduct = async (productId) => {
+    try {
+      const response = await fetch(`http://localhost:4280/api/products/${productId}/restore`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sellerId: sellerId })
+      });
+      const result = await response.json();
+      if (result.status === 'success') {
+        setRefreshTrigger(prev => prev + 1);
+        console.log('Product restored successfully');
+      } else {
+        console.error('Failed to restore product:', result.message);
+      }
+    } catch (err) {
+      console.error('Restore error:', err);
+    }
+  };
+
+  const currentItems = showArchived ? archivedItems : items;
+  const filteredItems = currentItems.filter((item) =>
     item.product_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -75,24 +135,52 @@ export default function SellerPageViewItems() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button className={styles.addButton} onClick={handleAdd}>
-              + Add Item
-            </button>
+            <div className={styles.buttonGroup}>
+              <button 
+                className={`${styles.toggleButton} ${showArchived ? styles.active : ''}`}
+                onClick={() => setShowArchived(!showArchived)}
+              >
+                {showArchived ? 'View Active' : 'View Archived'}
+              </button>
+              <button className={styles.addButton} onClick={handleAdd}>
+                + Add Item
+              </button>
+            </div>
           </div>
 
           <div className={styles.cardGrid}>
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
-                <CardItem
-                  key={item.product_id}
-                  data={item}
-                  onCardClick={() => handleCardClick(item.product_id)}
-                  disableVisitCount={true}
-                />
+                <div key={item.product_id} className={styles.cardWrapper}>
+                  <CardItem
+                    data={item}
+                    onCardClick={() => handleCardClick(item.product_id)}
+                    disableVisitCount={true}
+                  />
+                  <div className={styles.cardActions}>
+                    {showArchived ? (
+                      <button 
+                        className={styles.restoreButton}
+                        onClick={() => handleRestoreProduct(item.product_id)}
+                      >
+                        Restore
+                      </button>
+                    ) : (
+                      <button 
+                        className={styles.archiveButton}
+                        onClick={() => handleArchiveProduct(item.product_id)}
+                      >
+                        Archive
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))
             ) : (
               <p className={styles.noItemsMessage}>
-                No items found. Add a new item to get started!
+                {showArchived 
+                  ? 'No archived items found.' 
+                  : 'No active items found. Add a new item to get started!'}
               </p>
             )}
           </div>

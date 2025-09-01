@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -19,14 +20,21 @@ import SellerPage from "./Page/SellerPage/SellerPage";
 import SPAddItem from "./Page/SellerPage/AddItem/SellerPageAddItem";
 import SPViewItems from "./Page/SellerPage/ViewItems/SellerPageViewItems";
 import SPEditItem from "./Page/SellerPage/EditItem/SellerPageEditItem";
+import SellerOrderManagement from "./Page/SellerPage/OrderManagement/SellerOrderManagement";
+import OTPVerification from "./Page/OTPVerification/OTPVerification";
 
 function App() {
+  // TODO: Replace with your actual Google OAuth Client ID
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "your-google-client-id-here";
+
   return (
-    <Router>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/home/:id" element={<HomePage />} />
         <Route path="/items/:id" element={<ItemsPage />} />
         <Route path="/item-detail/:id" element={<ItemDetailPage />} />
@@ -40,11 +48,13 @@ function App() {
         <Route path="/seller/add-item/:id" element={<SPAddItem />} />
         <Route path="/seller/view-items/:id" element={<SPViewItems />} />
         <Route path="/seller/edit-item/:id" element={<SPEditItem />} />
+        <Route path="/seller/orders/:id" element={<SellerOrderManagement />} />
         
         {/* Admin Route */}
         <Route path="/A_home/:id" element={<AdminPage />} />
       </Routes>
-    </Router>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

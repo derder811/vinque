@@ -230,6 +230,9 @@ export default function SellerPage() {
                     <a href={`/seller/view-items/${sellerId}`} className="list-group-item list-group-item-action">
                       <i className="bi bi-list-check me-2"></i> View All Listings
                     </a>
+                    <a href={`/seller/orders/${sellerId}`} className="list-group-item list-group-item-action">
+                      <i className="bi bi-clipboard-check me-2"></i> Manage Orders
+                    </a>
                     <a href="#" className="list-group-item list-group-item-action">
                       <i className="bi bi-graph-up me-2"></i> View Sales Reports
                     </a>

@@ -48,6 +48,79 @@
   font-size: 1rem;
   background-color: var(--input-bg);
   box-shadow: 0 2px 5px var(--shadow-light);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toggleButton {
+  padding: 10px 20px;
+  border: 2px solid var(--button-border);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--button-border);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+  background-color: var(--button-border);
+  color: white;
+}
+
+.toggleButton.active {
+  background-color: var(--button-bg);
+  color: white;
+  border-color: var(--button-bg);
+}
+
+.cardWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardActions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.archiveButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #dc3545;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.archiveButton:hover {
+  background-color: #c82333;
+}
+
+.restoreButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #28a745;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.restoreButton:hover {
+  background-color: #218838;
   transition: all 0.3s ease;
 }
 

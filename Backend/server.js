@@ -1,4 +1,5 @@
 // server.js
+import 'dotenv/config'; // Load environment variables
 import express from "express";
 import pool from './database.js'; // Assuming database.js sets up and exports the pool
 import cors from 'cors';
@@ -7,11 +8,56 @@ import bcrypt from 'bcrypt';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import fs from 'fs'; // Import file system module
+import nodemailer from 'nodemailer'; // Import nodemailer for OTP emails
 
 // CONFIG
 // For production, these should be environment variables.
 const PORT = process.env.PORT || 4280;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+// Email configuration for OTP
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // You can change this to your email provider
+    auth: {
+        user: process.env.EMAIL_USER || 'your-email@gmail.com', // Add to .env file
+        pass: process.env.EMAIL_PASS || 'your-app-password' // Add to .env file
+    }
+});
+
+// OTP utility functions
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+}
+
+async function sendOTPEmail(email, otp, firstName = '') {
+    const mailOptions = {
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
+        to: email,
+        subject: 'Your Login Verification Code',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #6b8e23; text-align: center;">Vinque - Login Verification</h2>
+                <p>Hello ${firstName},</p>
+                <p>Your verification code is:</p>
+                <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+                    <h1 style="color: #6b8e23; font-size: 32px; margin: 0; letter-spacing: 5px;">${otp}</h1>
+                </div>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you didn't request this code, please ignore this email.</p>
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+                <p style="color: #666; font-size: 12px; text-align: center;">This is an automated message from Vinque. Please do not reply.</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        console.error('Error sending OTP email:', error);
+        return false;
+    }
+}
 
 // __dirname replacement for ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -303,6 +349,306 @@ app.post("/api/signup", async (req, res) => {
 
 
 
+// Google OAuth signup/login route
+app.post("/api/google-signup", async (req, res) => {
+  console.log('🔍 Google OAuth Request received:', new Date().toISOString());
+  let connection;
+  try {
+    // Decode the Google JWT credential
+    const { credential } = req.body;
+    console.log('📧 Google credential received:', credential ? 'Yes' : 'No');
+    
+    if (!credential) {
+      console.log('❌ No credential provided');
+      return res.status(400).json({
+        status: "error",
+        message: "Missing Google credential"
+      });
+    }
+
+    // Decode JWT token (basic decode without verification for demo)
+    // In production, you should verify the token with Google's public keys
+    const jwtParts = credential.split('.');
+    if (jwtParts.length !== 3) {
+      console.log('❌ Invalid JWT format - expected 3 parts, got:', jwtParts.length);
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid Google credential format"
+      });
+    }
+    
+    const base64Url = jwtParts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const googleUser = JSON.parse(jsonPayload);
+    const { sub: googleId, email, name, picture } = googleUser;
+    console.log('👤 Google user data:', { googleId, email, name });
+
+    if (!googleId || !email || !name) {
+      console.log('❌ Missing required Google OAuth data');
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required Google OAuth data"
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Check if user already exists by email
+    console.log('🔍 Checking for existing user with email:', email.trim());
+    const [existingUsers] = await connection.query(
+      "SELECT user_id, username, role FROM accounts WHERE LOWER(username) = LOWER(?) OR user_id IN (SELECT user_id FROM customer_tb WHERE email = ?)",
+      [email.trim(), email.trim()]
+    );
+    console.log('📋 Existing users found:', existingUsers);
+
+    let user;
+    let isNewUser = false;
+
+    if (existingUsers.length > 0) {
+      // User exists, log them in
+      console.log('✅ Existing user found, logging in directly');
+      user = existingUsers[0];
+    } else {
+      // Create new user
+      isNewUser = true;
+      const username = email.split('@')[0]; // Use email prefix as username
+      const role = "Customer";
+
+      // Insert into accounts table (use placeholder password for Google OAuth)
+      const [accountResult] = await connection.query(
+        "INSERT INTO accounts (username, password, role) VALUES (?, ?, ?)",
+        [username, 'GOOGLE_OAUTH_USER', role] // Placeholder password for Google OAuth users
+      );
+
+      const user_id = accountResult.insertId;
+
+      // Parse name into first and last name
+      const nameParts = name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Insert into customer_tb
+      await connection.query(
+        "INSERT INTO customer_tb (user_id, First_name, Last_name, email, profile_pic) VALUES (?, ?, ?, ?, ?)",
+        [user_id, firstName, lastName, email.trim(), picture || null]
+      );
+
+      user = {
+        user_id,
+        username,
+        role
+      };
+    }
+
+    // Get additional user info
+    let seller_id = null;
+    let customer_id = null;
+    let firstName = "";
+    let lastName = "";
+
+    if (user.role === "Customer") {
+      const [customerResult] = await connection.query(
+        "SELECT customer_id, First_name, Last_name FROM customer_tb WHERE user_id = ? LIMIT 1",
+        [user.user_id]
+      );
+      if (customerResult.length > 0) {
+        customer_id = customerResult[0].customer_id;
+        firstName = customerResult[0].First_name;
+        lastName = customerResult[0].Last_name;
+      }
+    }
+
+    // Insert into accounts_history
+    const [historyResult] = await connection.query(
+      "INSERT INTO accounts_history (user_id, First_name, Last_name, role, Login) VALUES (?, ?, ?, ?, NOW())",
+      [user.user_id, firstName, lastName, user.role]
+    );
+
+    const history_id = historyResult.insertId;
+
+    await connection.commit();
+
+    // Only require OTP for new users, existing users can login directly
+    let requiresOTP = isNewUser;
+    console.log('🔐 OTP Logic - isNewUser:', isNewUser, 'requiresOTP:', requiresOTP);
+    let otp = null;
+    let emailSent = false;
+
+    if (isNewUser) {
+      console.log('📧 Generating OTP for new user');
+      // Generate and send OTP for new users only
+      otp = generateOTP();
+      const expiresAt = new Date(new Date().getTime() + 10 * 60 * 1000); // 10 minutes from now in UTC
+
+      // Insert OTP into database
+      await connection.query(
+        "INSERT INTO otp_tb (user_id, email, otp_code, expires_at) VALUES (?, ?, ?, ?)",
+        [user.user_id, email.trim(), otp, expiresAt]
+      );
+
+      // Send OTP email
+      emailSent = await sendOTPEmail(email.trim(), otp, firstName);
+
+      if (!emailSent) {
+        console.warn('Failed to send OTP email for new user');
+      }
+    } else {
+      console.log('✅ Existing user - skipping OTP');
+    }
+
+    const responseData = {
+      status: "success",
+      message: isNewUser ? "Account created successfully. Please check your email for verification code." : "Welcome back! Login successful.",
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        role: user.role,
+        First_name: firstName,
+        Last_name: lastName,
+        seller_id,
+        customer_id,
+        history_id,
+        email: email.trim()
+      },
+      isNewUser,
+      requiresOTP: requiresOTP
+    };
+    console.log('📤 Sending response:', JSON.stringify(responseData, null, 2));
+    return res.json(responseData);
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Google OAuth error:", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+      error: err.message
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Keep the old endpoint for backward compatibility
+app.post("/api/google-auth", async (req, res) => {
+  let connection;
+  try {
+    const { googleId, email, name, picture } = req.body;
+
+    if (!googleId || !email || !name) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required Google OAuth data"
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Check if user already exists by email
+    const [existingUsers] = await connection.query(
+      "SELECT user_id, username, role FROM accounts WHERE LOWER(username) = LOWER(?) OR user_id IN (SELECT user_id FROM customer_tb WHERE email = ?)",
+      [email.trim(), email.trim()]
+    );
+
+    let user;
+    let isNewUser = false;
+
+    if (existingUsers.length > 0) {
+      // User exists, log them in
+      user = existingUsers[0];
+    } else {
+      // Create new user
+      isNewUser = true;
+      const username = email.split('@')[0]; // Use email prefix as username
+      const role = "Customer";
+
+      // Insert into accounts table (no password needed for Google OAuth)
+      const [accountResult] = await connection.query(
+        "INSERT INTO accounts (username, password, role) VALUES (?, ?, ?)",
+        [username, null, role] // No password for Google OAuth users
+      );
+
+      const user_id = accountResult.insertId;
+
+      // Parse name into first and last name
+      const nameParts = name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Insert into customer_tb
+      await connection.query(
+        "INSERT INTO customer_tb (user_id, First_name, Last_name, email, profile_pic) VALUES (?, ?, ?, ?, ?)",
+        [user_id, firstName, lastName, email.trim(), picture || null]
+      );
+
+      user = {
+        user_id,
+        username,
+        role
+      };
+    }
+
+    // Get additional user info
+    let seller_id = null;
+    let customer_id = null;
+    let firstName = "";
+    let lastName = "";
+
+    if (user.role === "Customer") {
+      const [customerResult] = await connection.query(
+        "SELECT customer_id, First_name, Last_name FROM customer_tb WHERE user_id = ? LIMIT 1",
+        [user.user_id]
+      );
+      if (customerResult.length > 0) {
+        customer_id = customerResult[0].customer_id;
+        firstName = customerResult[0].First_name;
+        lastName = customerResult[0].Last_name;
+      }
+    }
+
+    // Insert into accounts_history
+    const [historyResult] = await connection.query(
+      "INSERT INTO accounts_history (user_id, First_name, Last_name, role, Login) VALUES (?, ?, ?, ?, NOW())",
+      [user.user_id, firstName, lastName, user.role]
+    );
+
+    const history_id = historyResult.insertId;
+
+    await connection.commit();
+
+    return res.json({
+      status: "success",
+      message: isNewUser ? "Account created and logged in successfully" : "Login successful",
+      user: {
+        user_id: user.user_id,
+        username: user.username,
+        role: user.role,
+        First_name: firstName,
+        Last_name: lastName,
+        seller_id,
+        customer_id,
+        history_id,
+      },
+      isNewUser
+    });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Google OAuth error:", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+      error: err.message
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
 // Login route
 app.post("/api/login", async (req, res) => {
   let connection;
@@ -423,7 +769,144 @@ app.post("/api/logout", async (req, res) => {
   }
 });
 
+// Send OTP endpoint
+app.post("/api/send-otp", async (req, res) => {
+  let connection;
+  try {
+    const { user_id, email } = req.body;
 
+    if (!user_id || !email) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing user_id or email"
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Get user details
+    const [userResult] = await connection.query(
+      "SELECT First_name FROM customer_tb WHERE user_id = ? LIMIT 1",
+      [user_id]
+    );
+
+    const firstName = userResult.length > 0 ? userResult[0].First_name : '';
+
+    // Generate OTP
+    const otp = generateOTP();
+    const expiresAt = new Date(new Date().getTime() + 10 * 60 * 1000); // 10 minutes from now in UTC
+
+    // Delete any existing unverified OTPs for this user
+    await connection.query(
+      "DELETE FROM otp_tb WHERE user_id = ? AND is_verified = FALSE",
+      [user_id]
+    );
+
+    // Insert new OTP
+    await connection.query(
+      "INSERT INTO otp_tb (user_id, email, otp_code, expires_at) VALUES (?, ?, ?, ?)",
+      [user_id, email, otp, expiresAt]
+    );
+
+    // Send OTP email
+    const emailSent = await sendOTPEmail(email, otp, firstName);
+
+    if (!emailSent) {
+      await connection.rollback();
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to send OTP email"
+      });
+    }
+
+    await connection.commit();
+
+    return res.json({
+      status: "success",
+      message: "OTP sent successfully to your email"
+    });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Send OTP error:", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Verify OTP endpoint
+app.post("/api/verify-otp", async (req, res) => {
+  let connection;
+  try {
+    const { user_id, otp_code } = req.body;
+    console.log("🔍 OTP Verification Request:", { user_id, otp_code });
+
+    if (!user_id || !otp_code) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing user_id or otp_code"
+      });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Debug: Check all OTPs for this user
+    const [allOtps] = await connection.query(
+      "SELECT otp_id, otp_code, expires_at, is_verified, created_at FROM otp_tb WHERE user_id = ? ORDER BY created_at DESC",
+      [user_id]
+    );
+    console.log("📋 All OTPs for user:", allOtps);
+
+    // Find valid OTP (using UTC time comparison)
+    const [otpResult] = await connection.query(
+      "SELECT otp_id, expires_at FROM otp_tb WHERE user_id = ? AND otp_code = ? AND is_verified = FALSE AND expires_at > UTC_TIMESTAMP() ORDER BY created_at DESC LIMIT 1",
+      [user_id, otp_code]
+    );
+    console.log("✅ Valid OTP found:", otpResult);
+    console.log("🕐 Current UTC time:", new Date().toISOString());
+
+    if (otpResult.length === 0) {
+      console.log("❌ No valid OTP found for verification");
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    // Mark OTP as verified
+    await connection.query(
+      "UPDATE otp_tb SET is_verified = TRUE WHERE otp_id = ?",
+      [otpResult[0].otp_id]
+    );
+
+    // Clean up old OTPs for this user
+    await connection.query(
+      "DELETE FROM otp_tb WHERE user_id = ? AND otp_id != ?",
+      [user_id, otpResult[0].otp_id]
+    );
+
+    await connection.commit();
+
+    return res.json({
+      status: "success",
+      message: "OTP verified successfully"
+    });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Verify OTP error:", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+});
 
 // Get user profile data by user ID
 app.get("/api/profile/:userId", async (req, res) => {
@@ -450,7 +933,7 @@ app.get("/api/products", async (req, res) => {
     let connection;
     try {
         connection = await pool.getConnection();
-        const [rows] = await connection.query("SELECT * FROM product_tb");
+        const [rows] = await connection.query("SELECT * FROM product_tb WHERE archived = 0 OR archived IS NULL");
         res.json({ status: "success", data: rows });
     } catch (err) {
         console.error('Error fetching products:', err);
@@ -478,7 +961,8 @@ app.get("/api/card-item-all", async (req, res) => {
          verified, 
          description, 
          category 
-       FROM product_tb`
+       FROM product_tb 
+       WHERE archived = 0 OR archived IS NULL`
     );
 
     const sanitize = (path) => {
@@ -521,7 +1005,7 @@ app.get("/api/card-item/:sellerId", async (req, res) => {
          description, 
          category 
        FROM product_tb 
-       WHERE seller_id = ?`,
+       WHERE seller_id = ? AND (archived = 0 OR archived IS NULL)`,
       [sellerId]
     );
 
@@ -895,6 +1379,7 @@ app.get("/api/home-products", async (req, res) => {
     const [rows] = await connection.query(`
       SELECT product_id, product_name, price, image1_path, verified, category
       FROM product_tb
+      WHERE archived = 0 OR archived IS NULL
     `);
 
     const fixedRows = rows.map((item) => {
@@ -1044,7 +1529,7 @@ app.get("/api/category-nav", async (req, res) => {
   try {
     connection = await pool.getConnection();
     const [rows] = await connection.query(
-      "SELECT DISTINCT category FROM product_tb WHERE category IS NOT NULL AND category != ''"
+      "SELECT DISTINCT category FROM product_tb WHERE category IS NOT NULL AND category != '' AND (archived = 0 OR archived IS NULL)"
     );
     const categories = rows.map(row => row.category);
     res.json({ status: "success", data: categories });
@@ -1063,21 +1548,22 @@ app.get("/api/header/search", async (req, res) => {
     connection = await pool.getConnection();
     const searchTerm = req.query.q || "";
     const seller = req.query.seller || null;
-    const customerId = req.query.customer_id || null;
+    const customerId = req.query.customerId || req.query.customer_id || null;
 
     let query = `
       SELECT product_id, product_name, category, price, image1_path 
       FROM product_tb
+      WHERE (archived = 0 OR archived IS NULL)
     `;
     const params = [];
 
     if (searchTerm) {
-      query += " WHERE product_name LIKE ? OR category LIKE ?";
+      query += " AND (product_name LIKE ? OR category LIKE ?)";
       params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
     if (seller) {
-      query += searchTerm ? " AND seller_id = ?" : " WHERE seller_id = ?";
+      query += " AND seller_id = ?";
       params.push(seller);
     }
 
@@ -1402,12 +1888,12 @@ app.get("/api/store/:id", async (req, res) => {
     }
 
     const [productCount] = await connection.query(
-      "SELECT COUNT(*) AS total FROM product_tb WHERE seller_id = ?",
+      "SELECT COUNT(*) AS total FROM product_tb WHERE seller_id = ? AND (archived = 0 OR archived IS NULL)",
       [id]
     );
 
     const [products] = await connection.query(
-      "SELECT product_id, product_name, price, category, verified, image1_path FROM product_tb WHERE seller_id = ?",
+      "SELECT product_id, product_name, price, category, verified, image1_path, archived FROM product_tb WHERE seller_id = ? AND (archived = 0 OR archived IS NULL)",
       [id]
     );
 
@@ -1570,9 +2056,143 @@ app.get("/api/orders/:userId", async (req, res) => {
     }
 });
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ status: "error", message: "Endpoint not found" });
+// Get orders for a specific seller
+app.get("/api/seller-orders/:sellerId", async (req, res) => {
+    let connection;
+    try {
+        const sellerId = req.params.sellerId;
+        connection = await pool.getConnection();
+
+        const [rows] = await connection.query(
+            `SELECT 
+                o.order_id,
+                o.user_id,
+                o.product_id,
+                o.product_name,
+                o.price,
+                o.down_payment,
+                o.remaining_payment,
+                o.status,
+                o.order_date,
+                o.paypal_transaction_id,
+                o.payer_name,
+                p.image1_path,
+                c.First_name,
+                c.Last_name,
+                c.email,
+                c.phone_num,
+                c.Address
+             FROM orders_tb o
+             LEFT JOIN product_tb p ON o.product_id = p.product_id
+             LEFT JOIN customer_tb c ON (CONCAT(c.First_name, ' ', c.Last_name) LIKE CONCAT('%', o.payer_name, '%') OR o.payer_name LIKE CONCAT('%', c.First_name, ' ', c.Last_name, '%'))
+             WHERE p.seller_id = ?
+             ORDER BY o.order_date DESC`,
+            [sellerId]
+        );
+
+        // Format the data for frontend
+        const formattedOrders = rows.map(order => {
+            const formatImage = (path) => {
+                if (!path) return null;
+                return path.startsWith("/uploads/") ? path : `/uploads/${path}`;
+            };
+            
+            return {
+                order_id: order.order_id,
+                user_id: order.user_id,
+                product_id: order.product_id,
+                product_name: order.product_name,
+                price: order.price,
+                down_payment: order.down_payment,
+                remaining_payment: order.remaining_payment,
+                status: order.status,
+                order_date: order.order_date,
+                paypal_transaction_id: order.paypal_transaction_id,
+                payer_name: order.payer_name,
+                image_path: formatImage(order.image1_path),
+                customer: {
+                    first_name: order.First_name,
+                    last_name: order.Last_name,
+                    email: order.email,
+                    phone: order.phone_num,
+                    address: order.Address
+                }
+            };
+        });
+
+        res.json({ status: "success", orders: formattedOrders });
+    } catch (err) {
+        console.error('Error fetching seller orders:', err);
+        res.status(500).json({ status: "error", message: "Failed to retrieve seller orders" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// Update order status (for sellers)
+app.put("/api/orders/:orderId/status", async (req, res) => {
+    let connection;
+    try {
+        const { orderId } = req.params;
+        const { status, sellerId } = req.body;
+
+        if (!status || !sellerId) {
+            return res.status(400).json({
+                status: "error",
+                message: "Status and seller ID are required"
+            });
+        }
+
+        // Validate status
+        const validStatuses = ['Pending', 'Complete'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                status: "error",
+                message: "Invalid status. Must be 'Pending' or 'Complete'"
+            });
+        }
+
+        connection = await pool.getConnection();
+        
+        // Verify that the order belongs to the seller's products
+        const [orderCheck] = await connection.query(
+            `SELECT o.order_id 
+             FROM orders_tb o
+             LEFT JOIN product_tb p ON o.product_id = p.product_id
+             WHERE o.order_id = ? AND p.seller_id = ?`,
+            [orderId, sellerId]
+        );
+
+        if (orderCheck.length === 0) {
+            return res.status(403).json({
+                status: "error",
+                message: "Order not found or you don't have permission to update this order"
+            });
+        }
+
+        // Update the order status
+        const [result] = await connection.query(
+            "UPDATE orders_tb SET status = ? WHERE order_id = ?",
+            [status, orderId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                status: "error",
+                message: "Order not found"
+            });
+        }
+
+        res.json({
+            status: "success",
+            message: "Order status updated successfully"
+        });
+    } catch (err) {
+        console.error('Error updating order status:', err);
+        res.status(500).json({ status: "error", message: "Failed to update order status" });
+    } finally {
+        if (connection) connection.release();
+    }
 });
 
 // Function to create orders table if it doesn't exist
@@ -1604,11 +2224,148 @@ async function createOrdersTable() {
     }
 }
 
+// Function to create OTP table if it doesn't exist
+async function createOTPTable() {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS otp_tb (
+                otp_id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                otp_code VARCHAR(6) NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                is_verified BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES accounts(user_id) ON DELETE CASCADE
+            )
+        `);
+        console.log('✅ OTP table created or already exists');
+    } catch (err) {
+        console.error('❌ Error creating OTP table:', err);
+    } finally {
+        if (connection) connection.release();
+    }
+}
+
+// Archive product endpoint
+app.put("/api/products/:productId/archive", async (req, res) => {
+    let connection;
+    try {
+        const { productId } = req.params;
+        const { sellerId } = req.body;
+        
+        if (!sellerId) {
+            return res.status(400).json({ status: "error", message: "Seller ID is required" });
+        }
+        
+        connection = await pool.getConnection();
+        
+        // Verify the product belongs to the seller
+        const [product] = await connection.query(
+            "SELECT seller_id FROM product_tb WHERE product_id = ?",
+            [productId]
+        );
+        
+        if (product.length === 0) {
+            return res.status(404).json({ status: "error", message: "Product not found" });
+        }
+        
+        if (product[0].seller_id !== parseInt(sellerId)) {
+            return res.status(403).json({ status: "error", message: "Unauthorized to archive this product" });
+        }
+        
+        // Archive the product
+        await connection.query(
+            "UPDATE product_tb SET archived = 1 WHERE product_id = ?",
+            [productId]
+        );
+        
+        res.json({ status: "success", message: "Product archived successfully" });
+    } catch (err) {
+        console.error('Error archiving product:', err);
+        res.status(500).json({ status: "error", message: "Internal server error" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// Restore product endpoint
+app.put("/api/products/:productId/restore", async (req, res) => {
+    let connection;
+    try {
+        const { productId } = req.params;
+        const { sellerId } = req.body;
+        
+        if (!sellerId) {
+            return res.status(400).json({ status: "error", message: "Seller ID is required" });
+        }
+        
+        connection = await pool.getConnection();
+        
+        // Verify the product belongs to the seller
+        const [product] = await connection.query(
+            "SELECT seller_id FROM product_tb WHERE product_id = ?",
+            [productId]
+        );
+        
+        if (product.length === 0) {
+            return res.status(404).json({ status: "error", message: "Product not found" });
+        }
+        
+        if (product[0].seller_id !== parseInt(sellerId)) {
+            return res.status(403).json({ status: "error", message: "Unauthorized to restore this product" });
+        }
+        
+        // Restore the product
+        await connection.query(
+            "UPDATE product_tb SET archived = 0 WHERE product_id = ?",
+            [productId]
+        );
+        
+        res.json({ status: "success", message: "Product restored successfully" });
+    } catch (err) {
+        console.error('Error restoring product:', err);
+        res.status(500).json({ status: "error", message: "Internal server error" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// Get archived products for seller
+app.get("/api/seller/:sellerId/archived-products", async (req, res) => {
+    let connection;
+    try {
+        const { sellerId } = req.params;
+        
+        connection = await pool.getConnection();
+        
+        const [rows] = await connection.query(
+            "SELECT product_id, product_name, price, category, verified, image1_path, archived FROM product_tb WHERE seller_id = ? AND archived = 1",
+            [sellerId]
+        );
+        
+        res.json({ status: "success", data: rows });
+    } catch (err) {
+        console.error('Error fetching archived products:', err);
+        res.status(500).json({ status: "error", message: "Internal server error" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// 404 handler - must be last
+app.use((req, res) => {
+    res.status(404).json({ status: "error", message: "Endpoint not found" });
+});
+
 // Start server
 app.listen(PORT, async () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
     console.log(`🔗 CORS allowed from: ${FRONTEND_URL}`);
     
-    // Create orders table on startup
+    // Create tables on startup
     await createOrdersTable();
+    await createOTPTable();
 });

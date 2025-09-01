@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
+import GoogleSignUp from "../../Compo/GoogleSignUp/GoogleSignUp";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,8 +24,10 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // Try to use environment variable, fallback to hardcoded URL
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4280";
-
+      
+      // Skip server check and proceed directly to login
       const response = await fetch(`${apiUrl}/api/login`, {
         method: "POST",
         headers: {
@@ -66,11 +69,7 @@ export default function Login() {
 
     } catch (err) {
       console.error("Login error:", err);
-      setError(
-        err.message.includes("Failed to fetch")
-          ? "Cannot connect to server."
-          : err.message
-      );
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -128,6 +127,8 @@ export default function Login() {
             Sign Up
           </button>
         </div>
+        
+        <GoogleSignUp />
       </form>
     </div>
   );

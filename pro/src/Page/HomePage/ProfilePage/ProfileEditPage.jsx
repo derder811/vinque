@@ -45,7 +45,11 @@ export default function ProfileEditPage() {
         });
 
         if (data.profile_pic) {
-          setAvatarPreview(`http://localhost:4280/uploads/${data.profile_pic}`);
+          // Handle both Google profile pictures (full URLs) and local uploads
+          const profilePicUrl = data.profile_pic.startsWith('http') 
+            ? data.profile_pic 
+            : `http://localhost:4280/uploads/${data.profile_pic}`;
+          setAvatarPreview(profilePicUrl);
         }
       } catch (error) {
         setErrorMsg(error.message);

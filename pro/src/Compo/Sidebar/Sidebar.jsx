@@ -17,6 +17,10 @@ export default function Sidebar() {
         <a href={`/seller/view-items/${sellerId}`} className={styles.sidebarLink}>
           <i className="bi bi-list-check me-2"></i>View My Items
         </a>
+
+        <a href={`/seller/orders/${sellerId}`} className={styles.sidebarLink}>
+          <i className="bi bi-clipboard-check me-2"></i>Manage Orders
+        </a>
         
         {/* You can add more links here */}
       </nav>

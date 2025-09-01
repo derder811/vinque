@@ -72,8 +72,11 @@ export default function ProfilePage() {
     profile_pic,
   } = profile;
 
+  // Handle both Google profile pictures (full URLs) and local uploads
   const displayPic = profile_pic
-    ? `http://localhost:4280/uploads/${profile_pic}`
+    ? (profile_pic.startsWith('http') 
+        ? profile_pic 
+        : `http://localhost:4280/uploads/${profile_pic}`)
     : "/profile_icon.png";
   const formattedAddress = Address ? Address.replace(/,\s*$/, "") : "";
   const displayBio = about_info || "No bio available.";
@@ -117,14 +120,37 @@ export default function ProfilePage() {
                 <div className={styles.contactItem}>
                   <i className="bi bi-envelope-fill me-2"></i>{email}
                 </div>
-                <div className={styles.contactItem}>
-                  <i className="bi bi-telephone-fill me-2"></i>{phone_num}
-                </div>
-                <div className={styles.contactItem}>
-                  <i className="bi bi-geo-alt-fill me-2"></i>{formattedAddress}
-                </div>
+                {phone_num && (
+                  <div className={styles.contactItem}>
+                    <i className="bi bi-telephone-fill me-2"></i>{phone_num}
+                  </div>
+                )}
+                {formattedAddress && (
+                  <div className={styles.contactItem}>
+                    <i className="bi bi-geo-alt-fill me-2"></i>{formattedAddress}
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Google Account Information */}
+            {profile_pic && profile_pic.startsWith('http') && (
+              <div className={styles.detailSection}>
+                <h3 className={styles.sectionTitle}>
+                  <i className="bi bi-google me-2"></i>Google Account
+                </h3>
+                <div className={styles.contactInfo}>
+                  <div className={styles.contactItem}>
+                    <i className="bi bi-check-circle-fill me-2" style={{color: '#4285f4'}}></i>
+                    Connected with Google Account
+                  </div>
+                  <div className={styles.contactItem}>
+                    <i className="bi bi-image-fill me-2"></i>
+                    Profile picture synced from Google
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.profileActions}>

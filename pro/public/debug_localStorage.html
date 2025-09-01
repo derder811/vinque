@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug localStorage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Profile Picture Debug Tool</h1>
+        
+        <div class="section">
+            <h2>Current localStorage Data</h2>
+            <button class="button" onclick="checkLocalStorage()">Check localStorage</button>
+            <pre id="localStorageData">Click button to check localStorage...</pre>
+        </div>
+        
+        <div class="section">
+            <h2>Test Login (Customer ID: 3)</h2>
+            <button class="button" onclick="simulateLogin()">Simulate Login</button>
+            <button class="button" onclick="clearStorage()">Clear localStorage</button>
+        </div>
+        
+        <div class="section">
+            <h2>API Test</h2>
+            <button class="button" onclick="testAPI()">Test Profile API</button>
+            <pre id="apiResult">Click button to test API...</pre>
+        </div>
+        
+        <div class="section">
+            <h2>Profile Picture Test</h2>
+            <div id="profileTest">
+                <p>Profile picture will appear here after login:</p>
+                <img id="profileImg" style="width: 50px; height: 50px; border-radius: 50%; display: none;" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkLocalStorage() {
+            const data = {
+                user: localStorage.getItem('user'),
+                customer_id: localStorage.getItem('customer_id'),
+                seller_id: localStorage.getItem('seller_id'),
+                history_id: localStorage.getItem('history_id')
+            };
+            
+            document.getElementById('localStorageData').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        function simulateLogin() {
+            const testUser = {
+                customer_id: 3,
+                user_id: 3,
+                First_name: 'Jake',
+                Last_name: 'De Dog',
+                role: 'customer'
+            };
+            
+            localStorage.setItem('user', JSON.stringify(testUser));
+            localStorage.setItem('customer_id', '3');
+            
+            alert('Test user logged in! Refresh the main app to see changes.');
+            checkLocalStorage();
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            alert('localStorage cleared!');
+            checkLocalStorage();
+            document.getElementById('profileImg').style.display = 'none';
+        }
+        
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:4280/api/header/search?customer_id=3');
+                const data = await response.json();
+                
+                document.getElementById('apiResult').textContent = JSON.stringify(data, null, 2);
+                
+                if (data.profile_pic) {
+                    const profileImg = document.getElementById('profileImg');
+                    profileImg.src = `http://localhost:4280/uploads/${data.profile_pic}`;
+                    profileImg.style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('apiResult').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        // Auto-check localStorage on page load
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

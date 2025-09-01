@@ -62,8 +62,8 @@ export default function ItemsPage() {
   // Filter items based on active tab
   const filteredItems = orders.filter(item => {
     if (activeTab === "All") return true;
-    if (activeTab === "Pending") return item.status === "pending";
-    if (activeTab === "Complete") return item.status === "completed";
+    if (activeTab === "Pending") return item.status === "Pending";
+    if (activeTab === "Complete") return item.status === "Complete";
     return true;
   });
 

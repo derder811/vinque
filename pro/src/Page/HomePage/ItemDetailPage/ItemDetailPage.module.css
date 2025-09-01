@@ -63,10 +63,11 @@
   width: 70px;
   height: 70px;
   border-radius: var(--radius-sm);
-  object-fit: cover;
+  object-fit: contain;
   cursor: pointer;
   border: 2px solid transparent;
   transition: border-color 0.3s ease, transform 0.2s ease;
+  background-color: #f8f5f0; /* Light background to make images visible */
 }
 
 .thumbnailImage:hover,

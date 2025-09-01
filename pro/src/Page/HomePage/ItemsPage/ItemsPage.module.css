@@ -84,8 +84,9 @@
 .cardImage img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.5s ease;
+  background-color: #f8f5f0; /* Light background to make images visible */
 }
 
 .itemCard:hover .cardImage img {
@@ -333,6 +334,7 @@
     width: 95%;
     margin: 1rem;
   }
+}
   
   .productInfo {
     flex-direction: column;
@@ -352,7 +354,6 @@
   .value {
     text-align: left;
   }
-wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww}
 
 .loading {
   text-align: center;
