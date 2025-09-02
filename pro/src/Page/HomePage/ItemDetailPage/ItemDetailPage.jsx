@@ -171,10 +171,7 @@ export default function ItemDetailPage() {
                   minimumFractionDigits: 2,
                 })}
               </p>
-              <div className={styles.viewCounter}>
-                <span className={styles.eyeIcon}>👁️</span>
-                <span className={styles.viewCount}>{viewCount}</span>
-              </div>
+
             </div>
 
             <div className={styles.detailSection}>

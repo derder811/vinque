@@ -100,28 +100,7 @@
   flex: 1;
 }
 
-.viewCounter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #f8f5f0;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid #e0d5c7;
-}
 
-.eyeIcon {
-  font-size: 1.2rem;
-  color: var(--accent);
-}
-
-.viewCount {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-medium);
-  min-width: 20px;
-  text-align: center;
-}
 
 .priceContainer {
   display: flex;
@@ -259,10 +238,6 @@
     align-items: flex-start;
     gap: 1rem;
   }
-
-  .viewCounter {
-    align-self: flex-end;
-  }
 }
 
 @media (max-width: 480px) {
@@ -296,15 +271,5 @@
     padding: var(--spacing);
   }
 
-  .viewCounter {
-    padding: 0.4rem 0.8rem;
-  }
 
-  .eyeIcon {
-    font-size: 1rem;
-  }
-
-  .viewCount {
-    font-size: 0.9rem;
-  }
 }
