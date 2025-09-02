@@ -1723,6 +1723,103 @@ app.get("/api/seller-stats/:sellerId", async (req, res) => {
   }
 });
 
+// Get seller revenue analytics
+app.get("/api/seller-revenue/:sellerId", async (req, res) => {
+  const { sellerId } = req.params;
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    // 1. Validate seller
+    const [[seller]] = await connection.query(
+      "SELECT business_name FROM seller_tb WHERE seller_id = ?",
+      [sellerId]
+    );
+
+    if (!seller) {
+      return res.status(404).json({ status: "error", message: "Seller not found" });
+    }
+
+    // 2. Revenue by category
+    const [revenueByCategory] = await connection.query(
+      `SELECT p.category, 
+              COALESCE(SUM(o.price), 0) as revenue,
+              COUNT(o.order_id) as orders
+       FROM product_tb p
+       LEFT JOIN orders_tb o ON p.product_id = o.product_id AND o.status = 'Complete'
+       WHERE p.seller_id = ?
+       GROUP BY p.category
+       ORDER BY revenue DESC`,
+      [sellerId]
+    );
+
+    // 3. Monthly revenue for current year
+    const [monthlyRevenue] = await connection.query(
+      `SELECT MONTH(o.order_date) as month, 
+              COALESCE(SUM(o.price), 0) as revenue
+       FROM orders_tb o
+       JOIN product_tb p ON o.product_id = p.product_id
+       WHERE p.seller_id = ? AND o.status = 'Complete' 
+             AND YEAR(o.order_date) = YEAR(CURDATE())
+       GROUP BY MONTH(o.order_date)
+       ORDER BY MONTH(o.order_date)`,
+      [sellerId]
+    );
+
+    // Fill monthly revenue array (12 months)
+    const monthlyRevenueData = Array(12).fill(0);
+    monthlyRevenue.forEach(({ month, revenue }) => {
+      if (month >= 1 && month <= 12) {
+        monthlyRevenueData[month - 1] = parseFloat(revenue) || 0;
+      }
+    });
+
+    // 4. Total revenue and orders
+    const [[totals]] = await connection.query(
+      `SELECT COALESCE(SUM(o.price), 0) as totalRevenue,
+              COUNT(o.order_id) as totalOrders
+       FROM orders_tb o
+       JOIN product_tb p ON o.product_id = p.product_id
+       WHERE p.seller_id = ? AND o.status = 'Complete'`,
+      [sellerId]
+    );
+
+    // 5. Top selling products by revenue
+    const [topProducts] = await connection.query(
+      `SELECT p.product_name, p.category, 
+              COALESCE(SUM(o.price), 0) as revenue,
+              COUNT(o.order_id) as orders
+       FROM product_tb p
+       LEFT JOIN orders_tb o ON p.product_id = o.product_id AND o.status = 'Complete'
+       WHERE p.seller_id = ?
+       GROUP BY p.product_id, p.product_name, p.category
+       ORDER BY revenue DESC
+       LIMIT 5`,
+      [sellerId]
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        businessName: seller.business_name,
+        revenueByCategory,
+        monthlyRevenue: monthlyRevenueData,
+        totalRevenue: parseFloat(totals.totalRevenue) || 0,
+        totalOrders: totals.totalOrders || 0,
+        topProducts
+      }
+    });
+  } catch (err) {
+    console.error("❌ Error in seller-revenue:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error occurred."
+    });
+  } finally {
+    if (connection) connection.release();
+  }
+});
 
 // Increment visits on a product
 app.put("/api/visit/:id", async (req, res) => {

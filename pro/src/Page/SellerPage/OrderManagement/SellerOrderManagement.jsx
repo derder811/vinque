@@ -25,7 +25,7 @@ export default function SellerOrderManagement() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:4280/api/seller-orders/${sellerId}`);
+      const response = await fetch(`http://localhost:3000/api/seller-orders/${sellerId}`);
       const result = await response.json();
       
       if (result.status === 'success') {
@@ -44,7 +44,7 @@ export default function SellerOrderManagement() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       setUpdating(true);
-      const response = await fetch(`http://localhost:4280/api/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -22,6 +22,8 @@ import SPViewItems from "./Page/SellerPage/ViewItems/SellerPageViewItems";
 import SPEditItem from "./Page/SellerPage/EditItem/SellerPageEditItem";
 import SellerOrderManagement from "./Page/SellerPage/OrderManagement/SellerOrderManagement";
 import OTPVerification from "./Page/OTPVerification/OTPVerification";
+import ShopPage from "./Page/HomePage/ShopPage/ShopPage";
+import AboutPage from "./Page/HomePage/AboutPage/AboutPage";
 
 function App() {
   // TODO: Replace with your actual Google OAuth Client ID
@@ -36,6 +38,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/home/:id" element={<HomePage />} />
+        <Route path="/shop/:id" element={<ShopPage />} />
+        <Route path="/about/:id" element={<AboutPage />} />
         <Route path="/items/:id" element={<ItemsPage />} />
         <Route path="/item-detail/:id" element={<ItemDetailPage />} />
         <Route path="/checkout/:id" element={<ProcessCheckoutItem />} />

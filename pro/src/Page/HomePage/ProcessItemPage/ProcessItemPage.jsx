@@ -15,7 +15,7 @@ export default function ProcessItemPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch(`http://localhost:4280/api/checkout/${id}`);
+                const res = await fetch(`http://localhost:3000/api/checkout/${id}`);
                 const result = await res.json();
 
                 if (result.status === "success") {

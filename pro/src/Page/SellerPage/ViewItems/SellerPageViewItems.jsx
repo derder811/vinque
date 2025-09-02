@@ -75,7 +75,7 @@ export default function SellerPageViewItems() {
   // Archive product function
   const handleArchiveProduct = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:4280/api/products/${productId}/archive`, {
+      const response = await fetch(`http://localhost:3000/api/products/${productId}/archive`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export default function SellerPageViewItems() {
   // Restore product function
   const handleRestoreProduct = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:4280/api/products/${productId}/restore`, {
+      const response = await fetch(`http://localhost:3000/api/products/${productId}/restore`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

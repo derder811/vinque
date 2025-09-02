@@ -121,7 +121,7 @@ export default function ProfileEditPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4280/api/profile-update/${customerId}`, {
+      const res = await fetch(`http://localhost:3000/api/profile-update/${customerId}`, {
         method: "PUT",
         body: formData,
       });

@@ -4,7 +4,7 @@ import Sidebar from "../../Compo/Sidebar/Sidebar";
 import styles from "./SellerPage.module.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { Pie, Bar } from 'react-chartjs-2';
+import { Pie, Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -13,6 +13,8 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
 } from 'chart.js';
 
@@ -23,6 +25,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title
 );
 
@@ -37,6 +41,13 @@ export default function SellerPage() {
     mostViewedItem: null,
   });
   const [monthlyVisits, setMonthlyVisits] = useState(Array(12).fill(0));
+  const [revenueData, setRevenueData] = useState({
+    revenueByCategory: [],
+    monthlyRevenue: Array(12).fill(0),
+    totalRevenue: 0,
+    totalOrders: 0,
+    topProducts: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -67,14 +78,76 @@ export default function SellerPage() {
     ],
   };
 
+  // Revenue by Category Chart Data
+  const revenueByCategoryData = {
+    labels: revenueData.revenueByCategory.map(item => item.category),
+    datasets: [
+      {
+        label: 'Revenue by Category',
+        data: revenueData.revenueByCategory.map(item => parseFloat(item.revenue)),
+        backgroundColor: '#8B4513',
+        borderColor: '#654321',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Monthly Revenue Chart Data
+  const monthlyRevenueData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Monthly Revenue',
+        data: revenueData.monthlyRevenue,
+        backgroundColor: 'rgba(139, 69, 19, 0.1)',
+        borderColor: '#8B4513',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+      },
+      x: {
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/seller-stats/${sellerId}`);
-        const json = await res.json();
+        // Fetch both stats and revenue data
+        const [statsRes, revenueRes] = await Promise.all([
+          fetch(`http://localhost:3000/api/seller-stats/${sellerId}`),
+          fetch(`http://localhost:3000/api/seller-revenue/${sellerId}`)
+        ]);
+        
+        const statsJson = await statsRes.json();
+        const revenueJson = await revenueRes.json();
 
-        if (json.status === "success") {
+        if (statsJson.status === "success") {
           const {
             businessName,
             totalProducts,
@@ -84,7 +157,7 @@ export default function SellerPage() {
             categories,
             mostViewedItem,
             visitsByMonth,
-          } = json.data;
+          } = statsJson.data;
 
           setUsername(businessName);
           setStats({
@@ -97,7 +170,13 @@ export default function SellerPage() {
           });
           setMonthlyVisits(visitsByMonth || []);
         } else {
-          setError(json.message || "Failed to load stats.");
+          setError(statsJson.message || "Failed to load stats.");
+        }
+
+        if (revenueJson.status === "success") {
+          setRevenueData(revenueJson.data);
+        } else {
+          console.warn("Revenue data not available:", revenueJson.message);
         }
       } catch (err) {
         console.error("Fetch error:", err);
@@ -107,7 +186,7 @@ export default function SellerPage() {
       }
     };
 
-    fetchStats();
+    fetchData();
   }, [sellerId]);
 
   if (loading) {
@@ -213,6 +292,75 @@ export default function SellerPage() {
                     {monthlyVisits.some(v => v > 0)
                       ? <Bar data={barData} options={{ maintainAspectRatio: false }} />
                       : <p className="text-center">No monthly visit data yet.</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Revenue Analytics */}
+            <div className="row g-3 mb-4">
+              {/* Revenue Summary Cards */}
+              <div className="col-lg-6">
+                <div className="card h-100 shadow-sm">
+                  <div className="card-header text-white" style={{ backgroundColor: '#8B4513' }}>Revenue Summary</div>
+                  <div className="card-body">
+                    <div className="row text-center">
+                      <div className="col-6">
+                        <h4 className="text-success">₱{revenueData.totalRevenue.toFixed(2)}</h4>
+                        <p className="text-muted">Total Revenue</p>
+                      </div>
+                      <div className="col-6">
+                        <h4 className="text-info">{revenueData.totalOrders}</h4>
+                        <p className="text-muted">Total Orders</p>
+                      </div>
+                    </div>
+                    {revenueData.topProducts.length > 0 && (
+                      <div className="mt-3">
+                        <h6>Top Selling Products:</h6>
+                        <ul className="list-unstyled">
+                          {revenueData.topProducts.slice(0, 3).map((product, index) => (
+                            <li key={index} className="d-flex justify-content-between">
+                              <span>{product.product_name}</span>
+                              <span className="text-success">₱{parseFloat(product.revenue).toFixed(2)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Revenue by Category */}
+              <div className="col-lg-6">
+                <div className="card h-100 shadow-sm">
+                  <div className="card-header text-white" style={{ backgroundColor: '#8B4513' }}>Revenue by Category</div>
+                  <div className="card-body" style={{ height: "300px" }}>
+                    {revenueData.revenueByCategory.length > 0 ? (
+                      <Bar data={revenueByCategoryData} options={chartOptions} />
+                    ) : (
+                      <div className="d-flex align-items-center justify-content-center h-100">
+                        <p className="text-muted">No revenue data yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Monthly Revenue */}
+            <div className="row g-3 mb-4">
+              <div className="col-lg-12">
+                <div className="card h-100 shadow-sm">
+                  <div className="card-header text-white" style={{ backgroundColor: '#8B4513' }}>Monthly Revenue</div>
+                  <div className="card-body" style={{ height: "400px" }}>
+                    {revenueData.monthlyRevenue.some(v => v > 0) ? (
+                      <Line data={monthlyRevenueData} options={chartOptions} />
+                    ) : (
+                      <div className="d-flex align-items-center justify-content-center h-100">
+                        <p className="text-muted">No monthly revenue data yet</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

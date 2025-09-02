@@ -18,6 +18,7 @@ export default function HomePage() {
   const [items, setItems] = useState([]);
   const [filterItems, setFilterItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -71,8 +72,13 @@ export default function HomePage() {
           });
 
           setItems(normalizedData);
+          
+          // Extract unique categories from items
+          const uniqueCategories = [...new Set(normalizedData.map(item => item.category).filter(Boolean))];
+          setCategories(uniqueCategories);
         } else {
           setItems([]);
+          setCategories([]);
         }
       } catch (error) {
         console.error("Fetch error:", error);
@@ -109,9 +115,8 @@ export default function HomePage() {
     navigate(`/home/${customerId}?q=${encodeURIComponent(term)}`);
   };
 
-  // Split items into featured and best sellers
-  const featuredItems = filterItems.slice(0, 4);
-  const bestSellerItems = filterItems.slice(4, 8);
+  // Use all filtered items for featured products
+  const featuredItems = filterItems;
 
   return (
     <div className={styles.HomePage}>
@@ -120,9 +125,18 @@ export default function HomePage() {
       {/* Navigation Tabs */}
       <div className={styles.navTabs}>
         <button className={`${styles.navTab} ${styles.active}`}>Home</button>
-        <button className={styles.navTab}>Shop</button>
-        <button className={styles.navTab}>Collections</button>
-        <button className={styles.navTab}>About</button>
+        <button 
+          className={styles.navTab}
+          onClick={() => navigate(`/shop/${customerId}`)}
+        >
+          Shop
+        </button>
+        <button 
+          className={styles.navTab}
+          onClick={() => navigate(`/about/${customerId}`)}
+        >
+          About
+        </button>
       </div>
 
       {/* Category Filter Tabs */}
@@ -133,18 +147,15 @@ export default function HomePage() {
         >
           All
         </button>
-        <button 
-          className={`${styles.categoryTab} ${selectedCategory === 'new' ? styles.active : ''}`}
-          onClick={() => setSelectedCategory('new')}
-        >
-          New Arrivals
-        </button>
-        <button 
-          className={`${styles.categoryTab} ${selectedCategory === 'bestseller' ? styles.active : ''}`}
-          onClick={() => setSelectedCategory('bestseller')}
-        >
-          Best Sellers
-        </button>
+        {categories.map((category) => (
+          <button 
+            key={category}
+            className={`${styles.categoryTab} ${selectedCategory === category ? styles.active : ''}`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
       </div>
 
       {/* Featured Products Section */}
@@ -167,25 +178,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Best Sellers Section */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Best Sellers</h2>
-        <div className={styles.productGrid}>
-          {bestSellerItems.length > 0 ? (
-            bestSellerItems.map((item, index) => (
-              <div
-                key={item.product_id}
-                ref={(el) => (cardRefs.current[index + 4] = el)}
-                className={styles.appearItem}
-              >
-                <Card data={item} onCardClick={() => handleCardClick(item.product_id)} />
-              </div>
-            ))
-          ) : (
-            <p className={styles.noItems}>No best seller items to display</p>
-          )}
-        </div>
-      </section>
+
     </div>
   );
 }

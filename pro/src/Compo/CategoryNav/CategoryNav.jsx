@@ -8,7 +8,7 @@ export default function CategoryNav({ onCategorySelect, selectedCategory }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:4280/api/category-nav");
+        const res = await fetch("http://localhost:3000/api/category-nav");
         const result = await res.json();
         if (result.status === "success") {
           setCategories(result.data);

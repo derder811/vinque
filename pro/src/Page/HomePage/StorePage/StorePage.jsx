@@ -17,7 +17,7 @@ export default function StorePage() {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const res = await fetch(`http://localhost:4280/api/store/${id}`);
+        const res = await fetch(`http://localhost:3000/api/store/${id}`);
         const json = await res.json();
 
         if (json.status === "success") {

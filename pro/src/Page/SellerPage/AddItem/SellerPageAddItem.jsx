@@ -137,7 +137,7 @@ export default function SellerPageAddItem() {
     });
 
     try {
-      const response = await fetch("http://localhost:4280/api/add-item", {
+      const response = await fetch("http://localhost:3000/api/add-item", {
         method: "POST",
         body: formData,
       });

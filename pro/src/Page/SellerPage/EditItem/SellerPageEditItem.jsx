@@ -30,7 +30,7 @@ export default function SellerPageEditItem() {
       }
 
       try {
-        const response = await fetch(`http://localhost:4280/api/edit-item/${productId}`);
+        const response = await fetch(`http://localhost:3000/api/edit-item/${productId}`);
         const { status, data, message } = await response.json();
 
         if (status === "success" && data) {
@@ -145,7 +145,7 @@ export default function SellerPageEditItem() {
   const handleDeleteItem = async () => {
     if (!window.confirm("Are you sure you want to delete this entire item?")) return;
     try {
-      const res = await fetch(`http://localhost:4280/api/delete-item/${productId}`, {
+      const res = await fetch(`http://localhost:3000/api/delete-item/${productId}`, {
         method: "DELETE"
       });
       const json = await res.json();
@@ -188,7 +188,7 @@ export default function SellerPageEditItem() {
     });
 
     try {
-      const res = await fetch(`http://localhost:4280/api/edit-item/${productId}`, {
+      const res = await fetch(`http://localhost:3000/api/edit-item/${productId}`, {
         method: "PUT",
         body: formData
       });
