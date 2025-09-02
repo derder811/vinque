@@ -383,8 +383,8 @@ app.post("/api/signup", async (req, res) => {
     if (role === "Seller") {
       await connection.query(
         `INSERT INTO seller_tb 
-        (user_id, business_name, First_name, Last_name, business_address, email, phone_num, approval_status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
+        (user_id, business_name, First_name, Last_name, business_address, email, phone_num, business_number, approval_status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
         [
           user_id,
           name.trim(),
@@ -393,6 +393,7 @@ app.post("/api/signup", async (req, res) => {
           address.trim(),
           email.trim(),
           phone.trim(),
+          finalBusinessPermit,
         ]
       );
     } else if (role === "Customer") {
