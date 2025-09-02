@@ -192,6 +192,89 @@ app.get("/api/seller", async (req, res) => {
     }
 });
 
+//get pending sellers for admin approval
+app.get("/api/admin/pending-sellers", async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const [rows] = await connection.query(
+            `SELECT s.user_id, s.business_name, s.First_name, s.Last_name, s.email, s.phone_num, s.approval_status, a.Business_Permit as business_number
+             FROM seller_tb s
+             LEFT JOIN accounts a ON s.user_id = a.user_id
+             WHERE s.approval_status = 'pending' 
+             ORDER BY s.seller_id DESC`
+        );
+        res.json({ status: "success", data: rows });
+    } catch (err) {
+        console.error('Error fetching pending sellers', err);
+        res.status(500).json({ status: "error", message: "Failed to retrieve pending sellers" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+//approve seller account
+app.put("/api/admin/approve-seller/:userId", async (req, res) => {
+    let connection;
+    try {
+        const { userId } = req.params;
+        
+        connection = await pool.getConnection();
+        const [result] = await connection.query(
+            "UPDATE seller_tb SET approval_status = 'approved' WHERE user_id = ? AND approval_status = 'pending'",
+            [userId]
+        );
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ 
+                status: "error", 
+                message: "Seller not found or already processed" 
+            });
+        }
+        
+        res.json({ 
+            status: "success", 
+            message: "Seller approved successfully" 
+        });
+    } catch (err) {
+        console.error('Error approving seller', err);
+        res.status(500).json({ status: "error", message: "Failed to approve seller" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+//reject seller account
+app.put("/api/admin/reject-seller/:userId", async (req, res) => {
+    let connection;
+    try {
+        const { userId } = req.params;
+        
+        connection = await pool.getConnection();
+        const [result] = await connection.query(
+            "UPDATE seller_tb SET approval_status = 'rejected' WHERE user_id = ? AND approval_status = 'pending'",
+            [userId]
+        );
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ 
+                status: "error", 
+                message: "Seller not found or already processed" 
+            });
+        }
+        
+        res.json({ 
+            status: "success", 
+            message: "Seller rejected successfully" 
+        });
+    } catch (err) {
+        console.error('Error rejecting seller', err);
+        res.status(500).json({ status: "error", message: "Failed to reject seller" });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 
 
 // Signup route
@@ -300,8 +383,8 @@ app.post("/api/signup", async (req, res) => {
     if (role === "Seller") {
       await connection.query(
         `INSERT INTO seller_tb 
-        (user_id, business_name, First_name, Last_name, business_address, email, phone_num) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        (user_id, business_name, First_name, Last_name, business_address, email, phone_num, approval_status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
         [
           user_id,
           name.trim(),
@@ -683,13 +766,23 @@ app.post("/api/login", async (req, res) => {
 
     if (user.role === "Seller") {
       const [sellerResult] = await connection.query(
-        "SELECT seller_id, First_name, Last_name FROM seller_tb WHERE user_id = ? LIMIT 1",
+        "SELECT seller_id, First_name, Last_name, approval_status FROM seller_tb WHERE user_id = ? LIMIT 1",
         [user.user_id]
       );
       if (sellerResult.length > 0) {
-        seller_id = sellerResult[0].seller_id;
-        firstName = sellerResult[0].First_name;
-        lastName = sellerResult[0].Last_name;
+        const seller = sellerResult[0];
+        
+        // Check if seller is approved
+        if (seller.approval_status !== 'approved') {
+          return res.status(403).json({ 
+            status: "error", 
+            message: "Your seller account is pending approval. Please wait for admin approval before logging in." 
+          });
+        }
+        
+        seller_id = seller.seller_id;
+        firstName = seller.First_name;
+        lastName = seller.Last_name;
       }
     } else if (user.role === "Customer") {
       const [customerResult] = await connection.query(

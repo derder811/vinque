@@ -364,6 +364,14 @@
   align-items: center;
 }
 
+.tableRow > div {
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4;
+}
+
 .tableRow:hover {
   background: rgba(139, 69, 19, 0.05);
 }
@@ -477,6 +485,51 @@
   font-weight: 500;
 }
 
+/* Action Buttons */
+.approveBtn {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.approveBtn:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.rejectBtn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.rejectBtn:hover {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.pending {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .sidebar {
@@ -528,6 +581,13 @@
   .userStats {
     flex-direction: column;
     gap: 1rem;
+  }
+  
+  .approveBtn,
+  .rejectBtn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
   }
 }
 

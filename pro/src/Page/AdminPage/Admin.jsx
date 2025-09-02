@@ -10,6 +10,7 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loginHistory, setLoginHistory] = useState([]);
   const [purchaseHistory, setPurchaseHistory] = useState([]);
+  const [pendingSellers, setPendingSellers] = useState([]);
   const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
@@ -37,8 +38,21 @@ export default function AdminPage() {
       }
     };
 
+    const fetchPendingSellers = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/admin/pending-sellers`);
+        const data = await res.json();
+        if (data.status === 'success') {
+          setPendingSellers(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending sellers:", err);
+      }
+    };
+
     fetchLoginHistory();
     fetchPurchaseHistory();
+    fetchPendingSellers();
   }, []);
 
   const filteredLogin = loginHistory.filter(entry =>
@@ -52,6 +66,51 @@ export default function AdminPage() {
       String(val).toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
+  // Handle seller approval/rejection
+  const handleApproveSeller = async (userId) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/approve-seller/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        // Remove the approved seller from the pending list
+        setPendingSellers(prev => prev.filter(seller => seller.user_id !== userId));
+        alert('Seller approved successfully!');
+      } else {
+        alert('Failed to approve seller: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error approving seller:', err);
+      alert('Error approving seller');
+    }
+  };
+
+  const handleRejectSeller = async (userId) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/reject-seller/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        // Remove the rejected seller from the pending list
+        setPendingSellers(prev => prev.filter(seller => seller.user_id !== userId));
+        alert('Seller rejected successfully!');
+      } else {
+        alert('Failed to reject seller: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error rejecting seller:', err);
+      alert('Error rejecting seller');
+    }
+  };
 
   // Calculate statistics
   const totalUsers = loginHistory.length;
@@ -98,6 +157,13 @@ export default function AdminPage() {
             >
               <i className="bi bi-graph-up"></i>
               <span>Analytics</span>
+            </button>
+            <button 
+              className={`${styles.navItem} ${activeSection === 'pending-sellers' ? styles.active : ''}`}
+              onClick={() => setActiveSection('pending-sellers')}
+            >
+              <i className="bi bi-person-plus"></i>
+              <span>Pending Seller Accounts</span>
             </button>
           </nav>
         </div>
@@ -315,6 +381,76 @@ export default function AdminPage() {
                       <p>Total Logins: {totalUsers}</p>
                       <p>Active Sessions: {activeUsers}</p>
                       <p>Purchase Activity: {totalPurchases}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Pending Seller Accounts Section */}
+          {activeSection === 'pending-sellers' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1>Pending Seller Accounts</h1>
+                <p>Review and approve seller account applications</p>
+              </div>
+              
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                  <i className="bi bi-person-plus"></i>
+                  Seller Applications
+                </h2>
+                <div className={styles.tableContainer}>
+                  <div className={styles.table}>
+                    <div className={styles.tableHeader}>
+                      <div>Application ID</div>
+                      <div>Business Name</div>
+                      <div>Owner Name</div>
+                      <div>Email</div>
+                      <div>Phone</div>
+                      <div>Business Number</div>
+                      <div>Status</div>
+                      <div>Actions</div>
+                    </div>
+                    <div className={styles.scrollableTable}>
+                      {pendingSellers.length === 0 ? (
+                        <div className={styles.tableRow}>
+                          <div colSpan="8" style={{textAlign: 'center', padding: '20px', color: '#666'}}>
+                            No pending seller applications
+                          </div>
+                        </div>
+                      ) : (
+                        pendingSellers.map((seller) => (
+                          <div key={seller.user_id} className={styles.tableRow}>
+                            <div>{seller.user_id}</div>
+                            <div>{seller.business_name}</div>
+                            <div>{seller.First_name} {seller.Last_name}</div>
+                            <div>{seller.email}</div>
+                            <div>{seller.phone_num}</div>
+                            <div>{seller.business_number || 'N/A'}</div>
+                            <div>
+                              <span className={`${styles.roleBadge} ${styles.pending}`}>
+                                {seller.approval_status}
+                              </span>
+                            </div>
+                            <div>
+                              <button 
+                                className={styles.approveBtn}
+                                onClick={() => handleApproveSeller(seller.user_id)}
+                              >
+                                Approve
+                              </button>
+                              <button 
+                                className={styles.rejectBtn}
+                                onClick={() => handleRejectSeller(seller.user_id)}
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
