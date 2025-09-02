@@ -1,0 +1,127 @@
+.footer {
+  background-color: #7a5e3b;
+  color: #f5f5f5;
+  padding: 2rem 0 1rem 0;
+  margin-top: auto;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.footerSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #f5f5f5;
+}
+
+.sectionText {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.linksList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footerLink {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.footerLink:hover {
+  color: #f5f5f5;
+  text-decoration: underline;
+}
+
+.footerBottom {
+  border-top: 1px solid #a0522d;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.copyright {
+  font-size: 0.85rem;
+  color: #d0d0d0;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.5rem 0 1rem 0;
+  }
+  
+  .footerContent {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1rem;
+  }
+  
+  .sectionText {
+    font-size: 0.85rem;
+  }
+  
+  .footerLink {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 1rem 0 0.75rem 0;
+  }
+  
+  .footerContent {
+    padding: 0 0.75rem;
+    gap: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sectionText {
+    font-size: 0.8rem;
+  }
+  
+  .footerLink {
+    font-size: 0.8rem;
+  }
+  
+  .copyright {
+    font-size: 0.8rem;
+  }
+}

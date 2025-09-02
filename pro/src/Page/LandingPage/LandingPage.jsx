@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LandingPage.module.css";
 import CardItem from "../../Compo/CardItem/CardItem";
+import Footer from "../../Compo/Footer/Footer";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export default function LandingPage() {
       <div className={styles.backgroundGradient}></div>
 
       <div className={styles.overlay}>
-        <img src="/Vinque_logo.png" alt="Vinque Logo" />
+        {/* <img src="/Vinque_logo.png" alt="Vinque Logo" /> */}
         <h1 className={`${styles.landingTitle} ${styles.fadeInUp}`}>
           Welcome to Vinque
         </h1>
@@ -106,6 +107,8 @@ export default function LandingPage() {
           ))
         )}
       </section>
+      
+      <Footer />
     </main>
   );
 }

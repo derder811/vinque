@@ -5,6 +5,7 @@ import Card from "../../Compo/CardItem/CardItem.jsx";
 import Header from "../../Compo/Header/Header.jsx";
 import Carousel from "../../Compo/Carousel/Carousel.jsx";
 import Category from "../../Compo/CategoryNav/CategoryNav.jsx";
+import Footer from "../../Compo/Footer/Footer.jsx";
 import styles from "./HomePage.module.css";
 
 export default function HomePage() {
@@ -178,7 +179,7 @@ export default function HomePage() {
         </div>
       </section>
 
-
+      <Footer />
     </div>
   );
 }
