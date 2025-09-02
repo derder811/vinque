@@ -71,7 +71,12 @@ export default function ShopPage() {
             Home
           </button>
           <button className={`${styles.navTab} ${styles.active}`}>Shop</button>
-          <button className={styles.navTab}>About</button>
+          <button 
+            className={styles.navTab}
+            onClick={() => navigate(`/about/${id}`)}
+          >
+            About
+          </button>
         </div>
 
         <div className={styles.header}>

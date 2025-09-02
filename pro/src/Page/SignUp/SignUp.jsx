@@ -18,9 +18,17 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // Clear previous error messages
+
+    // Phone number validation - must be exactly 11 digits
+    if (!/^\d{11}$/.test(phone)) {
+      setErrorMessage('Please enter a valid 11-digit phone number.');
+      return;
+    }
 
     if (password.length < 8) {
       alert('Password must be at least 8 characters long.');
@@ -83,6 +91,12 @@ export default function SignupPage() {
     <main className={styles['signup-page']}>
       <form className={styles['signup-form']} onSubmit={handleSignup}>
         <h1 className={styles['signup-title']}>Create an Account</h1>
+        
+        {errorMessage && (
+          <div className={styles['error-message']}>
+            {errorMessage}
+          </div>
+        )}
 
         <fieldset className={styles['form-group']}>
           <legend className={styles['form-label']}>I am a:</legend>
