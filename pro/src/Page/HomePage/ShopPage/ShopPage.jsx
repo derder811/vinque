@@ -104,21 +104,23 @@ export default function ShopPage() {
               </div>
               
               <div className={styles.sellerInfo}>
-                <h3>{seller.business_name}</h3>
-                <p className={styles.description}>
-                  {seller.business_description || "No description available"}
-                </p>
-                <div className={styles.sellerDetails}>
-                  <div className={styles.location}>
-                    <i className="bi bi-geo-alt"></i>
-                    <span>{seller.business_address || "Location not provided"}</span>
-                  </div>
-                  {seller.phone_num && (
-                    <div className={styles.contact}>
-                      <i className="bi bi-telephone"></i>
-                      <span>{seller.phone_num}</span>
+                <div className={styles.sellerContent}>
+                  <h3>{seller.business_name}</h3>
+                  <p className={styles.description}>
+                    {seller.business_description || "No description available"}
+                  </p>
+                  <div className={styles.sellerDetails}>
+                    <div className={styles.location}>
+                      <i className="bi bi-geo-alt"></i>
+                      <span>{seller.business_address || "Location not provided"}</span>
                     </div>
-                  )}
+                    {seller.phone_num && (
+                      <div className={styles.contact}>
+                        <i className="bi bi-telephone"></i>
+                        <span>{seller.phone_num}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <button className={styles.visitButton}>
                   Visit Store
