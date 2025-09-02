@@ -84,20 +84,57 @@
   gap: var(--spacing);
 }
 
+.productHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
 .productDetails h1 {
   font-size: 2.2rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin: 0;
   line-height: 1.2;
   color: var(--text-dark);
+  flex: 1;
+}
+
+.viewCounter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f8f5f0;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid #e0d5c7;
+}
+
+.eyeIcon {
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.viewCount {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-medium);
+  min-width: 20px;
+  text-align: center;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--spacing);
 }
 
 .price {
   font-size: 1.8rem;
   font-weight: bold;
   color: var(--price-color);
-  margin-top: -0.25rem;
-  margin-bottom: var(--spacing);
+  margin: 0;
 }
 
 .detailSection h3,
@@ -216,6 +253,18 @@
   }
 }
 
+@media (max-width: 768px) {
+  .productHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .viewCounter {
+    align-self: flex-end;
+  }
+}
+
 @media (max-width: 480px) {
   .mainProductImage {
     max-width: 100%;
@@ -245,5 +294,17 @@
 
   .container {
     padding: var(--spacing);
+  }
+
+  .viewCounter {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .eyeIcon {
+    font-size: 1rem;
+  }
+
+  .viewCount {
+    font-size: 0.9rem;
   }
 }

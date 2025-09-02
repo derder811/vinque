@@ -960,7 +960,8 @@ app.get("/api/card-item-all", async (req, res) => {
          image3_path, 
          verified, 
          description, 
-         category 
+         category,
+         visits as view_count
        FROM product_tb 
        WHERE archived = 0 OR archived IS NULL`
     );
@@ -975,6 +976,7 @@ app.get("/api/card-item-all", async (req, res) => {
       image1_path: sanitize(item.image1_path),
       image2_path: sanitize(item.image2_path),
       image3_path: sanitize(item.image3_path),
+      view_count: item.view_count || 0,
     }));
 
     res.json({ status: "success", data: fixed });
@@ -986,47 +988,62 @@ app.get("/api/card-item-all", async (req, res) => {
   }
 });
 
+
+
 // Get all products for a specific seller
 app.get("/api/card-item/:sellerId", async (req, res) => {
   let connection;
   try {
     const sellerId = req.params.sellerId;
     connection = await pool.getConnection();
-
     const [rows] = await connection.query(
       `SELECT 
-         product_id, 
-         product_name, 
-         price, 
-         image1_path, 
-         image2_path, 
-         image3_path, 
-         verified, 
-         description, 
-         category 
-       FROM product_tb 
-       WHERE seller_id = ? AND (archived = 0 OR archived IS NULL)`,
+         p.product_id, 
+         p.product_name, 
+         p.price, 
+         p.image1_path, 
+         p.image2_path, 
+         p.image3_path, 
+         p.verified, 
+         p.description, 
+         p.category,
+         p.visits as view_count
+       FROM product_tb p
+       WHERE p.seller_id = ? AND (p.archived = 0 OR p.archived IS NULL)`,
       [sellerId]
     );
+    
+    console.log('SQL query successful. Rows returned:', rows.length);
+    console.log('Raw rows from database:', JSON.stringify(rows, null, 2));
 
     const sanitize = (path) => {
       if (!path) return null;
       return `/uploads/${path.replace(/^\/?uploads\/+/i, "")}`;
     };
 
+    console.log('Processing rows...');
     const fixed = rows.map((item) => ({
       ...item,
       image1_path: sanitize(item.image1_path),
       image2_path: sanitize(item.image2_path),
       image3_path: sanitize(item.image3_path),
+      view_count: item.view_count || 0
     }));
 
+    console.log('Sending response...');
     res.json({ status: "success", data: fixed });
+    console.log('Response sent successfully');
   } catch (err) {
-    console.error("Error fetching items:", err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error('=== ERROR IN /api/card-item/:sellerId ===');
+    console.error('Error details:', err);
+    console.error('Error message:', err.message);
+    console.error('Error stack:', err.stack);
+    res.status(500).json({ status: "error", message: "Server error: " + err.message });
   } finally {
-    if (connection) connection.release();
+    if (connection) {
+      console.log('Releasing database connection...');
+      connection.release();
+    }
   }
 });
 
@@ -1497,6 +1514,85 @@ app.post("/api/visit-store", async (req, res) => {
   } catch (err) {
     console.error("Failed to record visit:", err);
     res.status(500).json({ message: "Failed to record visit" });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// Track product view and return view count
+app.post("/api/track-product-view", async (req, res) => {
+  const { product_id, customer_id } = req.body;
+
+  if (!product_id) {
+    return res.status(400).json({ 
+      status: "error", 
+      message: "Missing product_id" 
+    });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    // Check if table exists and has correct structure
+    try {
+      const [tableInfo] = await connection.query("DESCRIBE product_views");
+      const hasCustomerId = tableInfo.some(col => col.Field === 'customer_id');
+      
+      if (!hasCustomerId && customer_id) {
+        // Add customer_id column if it doesn't exist
+        await connection.query("ALTER TABLE product_views ADD COLUMN customer_id INT");
+      }
+    } catch (describeErr) {
+      // Table doesn't exist, create it
+      if (describeErr.code === 'ER_NO_SUCH_TABLE') {
+        await connection.query(`
+          CREATE TABLE product_views (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id INT NOT NULL,
+            customer_id INT,
+            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_product_id (product_id),
+            INDEX idx_customer_id (customer_id)
+          )
+        `);
+      } else {
+        throw describeErr;
+      }
+    }
+
+    // Insert the product view record (or update if exists)
+    if (customer_id) {
+      await connection.query(
+        "INSERT INTO product_views (product_id, customer_id, viewed_at) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE viewed_at = NOW()",
+        [product_id, customer_id]
+      );
+    } else {
+      await connection.query(
+        "INSERT INTO product_views (product_id, viewed_at) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE viewed_at = NOW()",
+        [product_id]
+      );
+    }
+
+    // Get the total view count for this product
+    const [countResult] = await connection.query(
+      "SELECT COUNT(*) as viewCount FROM product_views WHERE product_id = ?",
+      [product_id]
+    );
+
+    const viewCount = countResult[0].viewCount;
+
+    res.json({ 
+      status: "success", 
+      message: "Product view tracked successfully",
+      viewCount: viewCount
+    });
+  } catch (err) {
+    console.error("Failed to track product view:", err);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Failed to track product view" 
+    });
   } finally {
     if (connection) connection.release();
   }
@@ -2400,6 +2496,39 @@ async function createOTPTable() {
     }
 }
 
+// Function to create product table if it doesn't exist
+async function createProductTable() {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS product_tb (
+                product_id INT AUTO_INCREMENT PRIMARY KEY,
+                seller_id INT NOT NULL,
+                product_name VARCHAR(255) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL,
+                image1_path VARCHAR(255),
+                image2_path VARCHAR(255),
+                image3_path VARCHAR(255),
+                verified BOOLEAN DEFAULT FALSE,
+                description TEXT,
+                Historian_Name VARCHAR(255),
+                Historian_Type VARCHAR(255),
+                category VARCHAR(100),
+                visits INT DEFAULT 0,
+                archived TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (seller_id) REFERENCES accounts(user_id) ON DELETE CASCADE
+            )
+        `);
+        console.log('✅ Product table created or already exists');
+    } catch (err) {
+        console.error('❌ Error creating product table:', err);
+    } finally {
+        if (connection) connection.release();
+    }
+}
+
 // Archive product endpoint
 app.put("/api/products/:productId/archive", async (req, res) => {
     let connection;
@@ -2517,6 +2646,7 @@ app.listen(PORT, async () => {
     console.log(`🔗 CORS allowed from: ${FRONTEND_URL}`);
     
     // Create tables on startup
+    await createProductTable();
     await createOrdersTable();
     await createOTPTable();
 });

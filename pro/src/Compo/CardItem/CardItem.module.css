@@ -75,6 +75,7 @@
 .priceContainer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -84,6 +85,25 @@
   font-weight: 700;
   color: #333;
 }
+
+/* View Counter */
+.viewCounter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.eyeIcon {
+  font-size: 0.9rem;
+}
+
+.viewCount {
+  font-weight: 500;
+}
+
+
 
 
 

@@ -8,6 +8,32 @@ export default function ItemDetailPage() {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
+  const [viewCount, setViewCount] = useState(0);
+
+  const trackProductView = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const customer_id = user?.user_id || '1';
+      
+      const response = await fetch('/api/track-product-view', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product_id: id,
+          customer_id: customer_id
+        })
+      });
+      
+      const data = await response.json();
+      if (data.status === 'success') {
+        setViewCount(data.viewCount || 0);
+      }
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -56,6 +82,12 @@ export default function ItemDetailPage() {
     };
 
     fetchProduct();
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      trackProductView();
+    }
   }, [id]);
 
   const handleImageClick = (img) => setSelectedImage(img);
@@ -130,12 +162,20 @@ export default function ItemDetailPage() {
           </div>
 
           <div className={styles.productDetails}>
-            <h1>{product.name}</h1>
-            <p className={styles.price}>
-              ₱{Number(product.price).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}
-            </p>
+            <div className={styles.productHeader}>
+              <h1>{product.name}</h1>
+            </div>
+            <div className={styles.priceContainer}>
+              <p className={styles.price}>
+                ₱{Number(product.price).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </p>
+              <div className={styles.viewCounter}>
+                <span className={styles.eyeIcon}>👁️</span>
+                <span className={styles.viewCount}>{viewCount}</span>
+              </div>
+            </div>
 
             <div className={styles.detailSection}>
               <h4>Category</h4>

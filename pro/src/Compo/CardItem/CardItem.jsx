@@ -1,11 +1,16 @@
 // frontend/src/Compo/CardItem/CardItem.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../Context/CartContext";
 import styles from "./CardItem.module.css";
 
 export default function CardItem({
   data,
   onCardClick,
+  showViewCount = false,
 }) {
+  const navigate = useNavigate();
+  const { addToCart, getItemQuantity } = useCart();
   const isVerified = data?.verified === 1;
 
   const imageSrc = (() => {
@@ -15,6 +20,13 @@ export default function CardItem({
       : `/uploads/${data.image1_path.replace(/^\/+/, "")}`;
     return cleanedPath;
   })();
+
+  const handleCheckout = (e) => {
+    e.stopPropagation(); // Prevent card click when clicking add button
+    navigate(`/checkout/${data.product_id}`);
+  };
+
+  const itemQuantity = getItemQuantity(data.product_id);
 
 
 
@@ -39,9 +51,15 @@ export default function CardItem({
         
         <div className={styles.priceContainer}>
           <span className={styles.currentPrice}>₱{data?.price || 0}</span>
+          {showViewCount && (
+            <div className={styles.viewCounter}>
+              <span className={styles.eyeIcon}>👁️</span>
+              <span className={styles.viewCount}>{data?.view_count || 0}</span>
+            </div>
+          )}
         </div>
         
-        <button className={styles.addButton}>
+        <button className={styles.addButton} onClick={handleCheckout}>
           <span className={styles.addIcon}>🛒</span>
           Add
         </button>

@@ -6,18 +6,32 @@ import CardItem from "../../../Compo/CardItem/CardItem";
 import styles from "./SellerPageViewItems.module.css";
 
 export default function SellerPageViewItems() {
+  // Debug: Component mounting
+  console.log("=== SELLER PAGE VIEW ITEMS COMPONENT MOUNTING ===");
+  
   const { id: sellerId } = useParams();
+  console.log("Seller ID from URL params:", sellerId);
+  
   const navigate = useNavigate();
   const location = useLocation();
+  console.log("Current location pathname:", location.pathname);
+  console.log("Full location object:", location);
+  
   const [items, setItems] = useState([]);
   const [archivedItems, setArchivedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showArchived, setShowArchived] = useState(false);
+  
+  // Debug: State initialization
+  console.log("Component state initialized successfully");
 
   // Fetch items from backend
   useEffect(() => {
+    console.log("useEffect is running with sellerId:", sellerId);
+    
     const fetchItems = async () => {
+      console.log("=== DEBUG: fetchItems function called with sellerId:", sellerId);
       if (!sellerId) {
         console.error("Seller ID not found in URL. Redirecting to login.");
         navigate("/login");
@@ -29,8 +43,9 @@ export default function SellerPageViewItems() {
         const response = await fetch(`/api/card-item/${sellerId}`);
         const result = await response.json();
         if (result.status === "success") {
+          console.log("Setting items:", result.data.length, "items");
+          console.log("API returned", result.data.length, "items:", result.data);
           setItems(result.data);
-          console.log("Items fetched successfully:", result.data);
         } else {
           console.error("Failed to fetch items:", result.message);
           setItems([]);
@@ -120,6 +135,8 @@ export default function SellerPageViewItems() {
   const filteredItems = currentItems.filter((item) =>
     item.product_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  console.log("Render - items:", items.length, "currentItems:", currentItems.length, "filteredItems:", filteredItems.length, "showArchived:", showArchived);
 
   return (
     <>
@@ -155,7 +172,7 @@ export default function SellerPageViewItems() {
                   <CardItem
                     data={item}
                     onCardClick={() => handleCardClick(item.product_id)}
-                    disableVisitCount={true}
+                    showViewCount={true}
                   />
                   <div className={styles.cardActions}>
                     {showArchived ? (

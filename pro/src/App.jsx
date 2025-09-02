@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { CartProvider } from './Context/CartContext';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -31,7 +32,8 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Router>
+      <CartProvider>
+        <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
@@ -57,7 +59,8 @@ function App() {
         {/* Admin Route */}
         <Route path="/A_home/:id" element={<AdminPage />} />
       </Routes>
-      </Router>
+        </Router>
+      </CartProvider>
     </GoogleOAuthProvider>
   );
 }

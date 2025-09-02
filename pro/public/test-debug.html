@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test Page</h1>
+    <div id="debug-logs" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; max-width: 300px; font-size: 12px; z-index: 9999;"></div>
+    <script>
+        const originalLog = console.log;
+        const debugDiv = document.getElementById('debug-logs');
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            if (debugDiv) {
+                debugDiv.innerHTML += args.join(' ') + '<br>';
+                debugDiv.scrollTop = debugDiv.scrollHeight;
+            }
+        };
+        
+        console.log('Test message 1');
+        console.log('Test message 2');
+        console.log('Debug panel is working!');
+    </script>
+</body>
+</html>

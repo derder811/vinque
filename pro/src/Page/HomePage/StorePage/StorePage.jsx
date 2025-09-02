@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../../Compo/Header/Header";
 import CardItem from "../../../Compo/CardItem/CardItem";
+import Cart from "../../../Compo/Cart/Cart";
+import { useCart } from "../../../Context/CartContext";
 import styles from "./StorePage.module.css";
 
 export default function StorePage() {
@@ -10,6 +12,9 @@ export default function StorePage() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const { getTotalItems } = useCart();
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -66,6 +71,15 @@ export default function StorePage() {
       <Header showItems={true} showSearchBar={false} />
       <div className={styles.storePage}>
         <div className={styles.storeHeader}>
+          {/* Cart Button */}
+          <button 
+            className={styles.cartButton}
+            onClick={() => setIsCartOpen(true)}
+          >
+            <span className={styles.cartIcon}>🛒</span>
+            <span className={styles.cartCount}>{getTotalItems()}</span>
+          </button>
+
           <div className={styles.profileWrapper}>
             <div className={styles.profileContainer}>
               <img
@@ -154,11 +168,13 @@ export default function StorePage() {
             <CardItem
               key={item.product_id}
               data={item}
-              onSelect={() => handleCardClick(item.product_id)}
+              onCardClick={() => handleCardClick(item.product_id)}
             />
           ))}
         </div>
       </div>
+      
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }
