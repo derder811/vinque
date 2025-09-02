@@ -71,15 +71,6 @@ export default function StorePage() {
       <Header showItems={true} showSearchBar={false} />
       <div className={styles.storePage}>
         <div className={styles.storeHeader}>
-          {/* Cart Button */}
-          <button 
-            className={styles.cartButton}
-            onClick={() => setIsCartOpen(true)}
-          >
-            <span className={styles.cartIcon}>🛒</span>
-            <span className={styles.cartCount}>{getTotalItems()}</span>
-          </button>
-
           <div className={styles.profileWrapper}>
             <div className={styles.profileContainer}>
               <img

@@ -95,6 +95,10 @@
   transition: all 0.3s ease;
   cursor: pointer;
   border: 1px solid #e1e8ed;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 450px;
 }
 
 .sellerCard:hover {
@@ -133,6 +137,14 @@
 
 .sellerInfo {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.sellerContent {
+  flex-grow: 1;
 }
 
 .sellerInfo h3 {
@@ -182,7 +194,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 1rem;
+  margin-top: auto;
 }
 
 .visitButton:hover {
