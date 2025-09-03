@@ -127,7 +127,7 @@ app.use((req, res, next) => {
 
 // CORS setup
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: [FRONTEND_URL, 'http://localhost:5176', 'http://localhost:5177'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -139,7 +139,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from 'uploads' directory with proper CORS and MIME headers
 app.use("/uploads", (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', FRONTEND_URL);
+    const allowedOrigins = [FRONTEND_URL, 'http://localhost:5176', 'http://localhost:5177'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
     res.header('Access-Control-Allow-Methods', 'GET');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     res.header('Cross-Origin-Resource-Policy', 'cross-origin');

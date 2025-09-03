@@ -20,11 +20,14 @@ This error occurs because your Google Cloud Console OAuth settings don't match y
 
    **Authorized JavaScript origins:**
    ```
+   http://localhost:5176
    http://localhost:5177
    ```
 
    **Authorized redirect URIs:**
    ```
+   http://localhost:5176
+   http://localhost:5176/
    http://localhost:5177
    http://localhost:5177/
    ```
@@ -65,9 +68,9 @@ This error occurs because your Google Cloud Console OAuth settings don't match y
 
 ## Current Configuration:
 
-- **App URL**: http://localhost:5177/
+- **App URLs**: http://localhost:5176/ and http://localhost:5177/
 - **Client ID**: 521937974102-iet5qscq0i9de3r73ovrfeqhi2lomn6m.apps.googleusercontent.com
-- **Required Origins**: http://localhost:5177
-- **Required Redirect URIs**: http://localhost:5177, http://localhost:5177/
+- **Required Origins**: http://localhost:5176, http://localhost:5177
+- **Required Redirect URIs**: http://localhost:5176, http://localhost:5176/, http://localhost:5177, http://localhost:5177/
 
 **The fix is 100% in the Google Cloud Console settings - please update them as described above!**
